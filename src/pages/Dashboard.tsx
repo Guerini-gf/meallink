@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ScannerInterface } from "@/components/scanner/ScannerInterface";
 import { MenuManager } from "@/components/menu/MenuManager";
-import { LogOut, Utensils, ChefHat, ScanLine } from "lucide-react";
+import { CustomerInterface } from "@/components/customer/CustomerInterface";
+import { LogOut, ChefHat, ScanLine, User } from "lucide-react";
 import { toast } from "sonner";
+import logoImage from "@/assets/logo.jpg";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -63,9 +65,11 @@ const Dashboard = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="bg-primary-foreground rounded-full p-3">
-                <Utensils className="h-8 w-8 text-primary" />
-              </div>
+              <img 
+                src={logoImage} 
+                alt="SOFTTHECHEFS Logo" 
+                className="h-16 w-auto object-contain"
+              />
               <div>
                 <h1 className="text-3xl font-bold text-primary-foreground">
                   SOFTTHECHEFS
@@ -109,12 +113,12 @@ const Dashboard = () => {
         )}
 
         {userRole === "customer" && (
-          <div className="text-center py-16">
-            <Utensils className="h-24 w-24 text-muted-foreground mx-auto mb-6" />
-            <h2 className="text-2xl font-bold mb-4">Area Dipendenti</h2>
-            <p className="text-lg text-muted-foreground">
-              Funzionalità di prenotazione pasti in arrivo...
-            </p>
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-6">
+              <User className="h-8 w-8 text-primary" />
+              <h2 className="text-3xl font-bold">Area Dipendenti</h2>
+            </div>
+            <CustomerInterface />
           </div>
         )}
       </main>

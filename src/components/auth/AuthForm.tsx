@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Utensils } from "lucide-react";
+import logoImage from "@/assets/logo.jpg";
 
 type AuthMode = "login" | "signup";
 
@@ -65,9 +65,11 @@ export const AuthForm = () => {
       <Card className="w-full max-w-md shadow-strong">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="bg-primary rounded-full p-4">
-              <Utensils className="h-8 w-8 text-primary-foreground" />
-            </div>
+            <img 
+              src={logoImage} 
+              alt="SOFTTHECHEFS Logo" 
+              className="h-24 w-auto object-contain"
+            />
           </div>
           <CardTitle className="text-3xl font-bold">SOFTTHECHEFS</CardTitle>
           <CardDescription className="text-base">
