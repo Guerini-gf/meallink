@@ -49,6 +49,7 @@ export type Database = {
           id: string
           meal_type: Database["public"]["Enums"]["meal_type"]
           menu_date: string
+          order_deadline: string | null
           updated_at: string | null
         }
         Insert: {
@@ -58,6 +59,7 @@ export type Database = {
           id?: string
           meal_type: Database["public"]["Enums"]["meal_type"]
           menu_date: string
+          order_deadline?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -67,6 +69,7 @@ export type Database = {
           id?: string
           meal_type?: Database["public"]["Enums"]["meal_type"]
           menu_date?: string
+          order_deadline?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -114,31 +117,43 @@ export type Database = {
       meal_orders: {
         Row: {
           created_at: string | null
+          feedback: string | null
           id: string
+          is_takeaway: boolean | null
           menu_id: string
+          notes: string | null
           selected_dishes: string[]
           served: boolean | null
           served_at: string | null
+          takeaway_time: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
+          feedback?: string | null
           id?: string
+          is_takeaway?: boolean | null
           menu_id: string
+          notes?: string | null
           selected_dishes: string[]
           served?: boolean | null
           served_at?: string | null
+          takeaway_time?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           created_at?: string | null
+          feedback?: string | null
           id?: string
+          is_takeaway?: boolean | null
           menu_id?: string
+          notes?: string | null
           selected_dishes?: string[]
           served?: boolean | null
           served_at?: string | null
+          takeaway_time?: string | null
           updated_at?: string | null
           user_id?: string
         }
