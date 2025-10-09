@@ -44,6 +44,8 @@ export const CustomerInterface = () => {
   const [feedback, setFeedback] = useState("");
   const [loading, setLoading] = useState(true);
   const [canOrder, setCanOrder] = useState(true);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [canteenInfo, setCanteenInfo] = useState<any>(null);
 
   useEffect(() => {
     loadMenusAndOrders();
@@ -56,11 +58,22 @@ export const CustomerInterface = () => {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("canteen_id")
+        .select("canteen_id, full_name, employee_number, badge_code")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (!profile?.canteen_id) return;
+      
+      setUserProfile(profile);
+
+      // Load canteen info
+      const { data: canteen } = await supabase
+        .from("canteens")
+        .select("name, code")
+        .eq("id", profile.canteen_id)
+        .maybeSingle();
+      
+      setCanteenInfo(canteen);
 
       const today = new Date().toISOString().split("T")[0];
       const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
@@ -222,12 +235,13 @@ export const CustomerInterface = () => {
 
   const getCategoryLabel = (category: string) => {
     const labels: { [key: string]: string } = {
-      primo: "Primi Piatti",
-      secondo: "Secondi Piatti",
-      contorno: "Contorni",
-      dessert: "Dessert",
+      primo: "PRIMI",
+      secondo: "SECONDI",
+      contorno: "CONTORNI",
+      dessert: "DESSERT",
+      altro: "ALTRO",
     };
-    return labels[category] || category;
+    return labels[category] || category.toUpperCase();
   };
 
   if (loading) {
@@ -240,6 +254,38 @@ export const CustomerInterface = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Header with User and Canteen Info */}
+      {userProfile && canteenInfo && (
+        <Card className="shadow-lg border-2 border-primary">
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="text-2xl font-bold text-primary">
+                  {canteenInfo.name}
+                </div>
+                <div className="text-xl font-semibold">
+                  COD {canteenInfo.code}
+                </div>
+              </div>
+              <div className="grid gap-3 text-lg">
+                <div className="flex gap-2">
+                  <span className="font-semibold">NOME DIPENDENTE:</span>
+                  <span>{userProfile.full_name}</span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="font-semibold">MATRICOLA:</span>
+                  <span>{userProfile.employee_number || 'N/A'}</span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="font-semibold">BADGE:</span>
+                  <span>{userProfile.badge_code || 'N/A'}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Today's Order */}
       {todayMenu && todayOrder && (
         <Card className="shadow-medium border-2 border-primary/20">
