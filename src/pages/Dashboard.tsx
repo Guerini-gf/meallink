@@ -28,15 +28,19 @@ const Dashboard = () => {
         return;
       }
 
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from("profiles")
         .select("role, full_name")
         .eq("id", session.user.id)
-        .single();
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching profile:", error);
+      }
 
       if (profile) {
         setUserRole(profile.role);
-        setUserName(profile.full_name);
+        setUserName(profile.full_name || "Utente");
       }
     } catch (error) {
       console.error("Error checking user:", error);
