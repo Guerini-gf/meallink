@@ -17,6 +17,7 @@ export type Database = {
       canteens: {
         Row: {
           address: string | null
+          code: string | null
           created_at: string | null
           id: string
           is_active: boolean | null
@@ -25,6 +26,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          code?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
@@ -33,6 +35,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          code?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
@@ -208,6 +211,7 @@ export type Database = {
           badge_code: string | null
           canteen_id: string | null
           created_at: string | null
+          employee_number: string | null
           full_name: string
           id: string
           role: Database["public"]["Enums"]["user_role"]
@@ -217,6 +221,7 @@ export type Database = {
           badge_code?: string | null
           canteen_id?: string | null
           created_at?: string | null
+          employee_number?: string | null
           full_name: string
           id: string
           role?: Database["public"]["Enums"]["user_role"]
@@ -226,6 +231,7 @@ export type Database = {
           badge_code?: string | null
           canteen_id?: string | null
           created_at?: string | null
+          employee_number?: string | null
           full_name?: string
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
