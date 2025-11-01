@@ -144,8 +144,52 @@ export const MenuManager = () => {
     { key: "dessert", label: "Dessert" },
   ];
 
+  const groupedDishes = existingDishes.reduce((acc, dish) => {
+    if (!acc[dish.category]) {
+      acc[dish.category] = [];
+    }
+    acc[dish.category].push(dish);
+    return acc;
+  }, {} as { [key: string]: Dish[] });
+
   return (
     <div className="space-y-6">
+      {/* Existing Dishes Library */}
+      <Card className="shadow-medium">
+        <CardHeader>
+          <CardTitle className="text-2xl">Libreria Piatti Esistenti</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {categories.map(({ key, label }) => (
+            <div key={key} className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-primary">{label}</h3>
+                <span className="text-sm text-muted-foreground">
+                  {groupedDishes[key]?.length || 0} piatti
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                {groupedDishes[key]?.length > 0 ? (
+                  groupedDishes[key].map((dish) => (
+                    <div
+                      key={dish.id}
+                      className="p-3 bg-muted/50 rounded-lg border border-border hover:border-primary transition-colors"
+                    >
+                      <p className="text-sm font-medium">{dish.name}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground col-span-full">
+                    Nessun piatto disponibile
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Daily Menu Creation */}
       <Card className="shadow-medium">
         <CardHeader>
           <CardTitle className="text-2xl">Gestione Menu Giornaliero</CardTitle>
