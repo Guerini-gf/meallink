@@ -116,8 +116,8 @@ const Dashboard = () => {
           </div>
         )}
 
-        {userRole === "customer" && (
-          <div className="space-y-6">
+        {(userRole === "customer" || userRole === "chef" || userRole === "operator") && (
+          <div className="space-y-6 mt-8">
             <div className="flex items-center gap-3 mb-6">
               <User className="h-8 w-8 text-primary" />
               <h2 className="text-3xl font-bold">Area Dipendenti</h2>
