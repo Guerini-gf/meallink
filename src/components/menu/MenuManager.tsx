@@ -7,11 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { PlusCircle, Save, Trash2 } from "lucide-react";
+import { DishCreator } from "./DishCreator";
 
 interface Dish {
   id: string;
   name: string;
   category: string;
+  variant?: string | null;
 }
 
 export const MenuManager = () => {
@@ -154,10 +156,13 @@ export const MenuManager = () => {
 
   return (
     <div className="space-y-6">
+      {/* Dish Creator */}
+      <DishCreator canteenId={canteenId} onDishCreated={loadExistingDishes} />
+
       {/* Existing Dishes Library */}
       <Card className="shadow-medium">
         <CardHeader>
-          <CardTitle className="text-2xl">Libreria Piatti Esistenti</CardTitle>
+          <CardTitle className="text-2xl">Libreria Piatti Esistenti ({existingDishes.length} totali)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {categories.map(({ key, label }) => (
@@ -168,14 +173,21 @@ export const MenuManager = () => {
                   {groupedDishes[key]?.length || 0} piatti
                 </span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {groupedDishes[key]?.length > 0 ? (
                   groupedDishes[key].map((dish) => (
                     <div
                       key={dish.id}
-                      className="p-3 bg-muted/50 rounded-lg border border-border hover:border-primary transition-colors"
+                      className="p-3 bg-muted/50 rounded-lg border border-border hover:border-primary transition-colors cursor-pointer"
+                      onClick={() => handleDishInput(key, dish.name)}
+                      title="Clicca per aggiungere al menu"
                     >
                       <p className="text-sm font-medium">{dish.name}</p>
+                      {dish.variant && (
+                        <p className="text-xs text-muted-foreground mt-1 italic">
+                          {dish.variant}
+                        </p>
+                      )}
                     </div>
                   ))
                 ) : (

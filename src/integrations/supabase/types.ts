@@ -92,6 +92,7 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
+          variant: string | null
         }
         Insert: {
           canteen_id?: string | null
@@ -99,6 +100,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name: string
+          variant?: string | null
         }
         Update: {
           canteen_id?: string | null
@@ -106,6 +108,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name?: string
+          variant?: string | null
         }
         Relationships: [
           {
