@@ -87,27 +87,36 @@ export type Database = {
       }
       dishes: {
         Row: {
+          available_for_takeaway: boolean | null
           canteen_id: string | null
           category: string
           created_at: string | null
           id: string
           name: string
+          takeaway_available_from: string | null
+          takeaway_available_until: string | null
           variant: string | null
         }
         Insert: {
+          available_for_takeaway?: boolean | null
           canteen_id?: string | null
           category: string
           created_at?: string | null
           id?: string
           name: string
+          takeaway_available_from?: string | null
+          takeaway_available_until?: string | null
           variant?: string | null
         }
         Update: {
+          available_for_takeaway?: boolean | null
           canteen_id?: string | null
           category?: string
           created_at?: string | null
           id?: string
           name?: string
+          takeaway_available_from?: string | null
+          takeaway_available_until?: string | null
           variant?: string | null
         }
         Relationships: [

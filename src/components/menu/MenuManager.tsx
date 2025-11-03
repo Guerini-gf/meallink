@@ -14,6 +14,9 @@ interface Dish {
   name: string;
   category: string;
   variant?: string | null;
+  available_for_takeaway?: boolean | null;
+  takeaway_available_from?: string | null;
+  takeaway_available_until?: string | null;
 }
 
 export const MenuManager = () => {
@@ -188,6 +191,22 @@ export const MenuManager = () => {
                           {dish.variant}
                         </p>
                       )}
+                      <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                        {dish.available_for_takeaway ? (
+                          <>
+                            <span className="flex items-center gap-1">
+                              <span className="font-semibold text-primary">📦 Asporto</span>
+                            </span>
+                            {dish.takeaway_available_from && dish.takeaway_available_until && (
+                              <span>
+                                {dish.takeaway_available_from.slice(0, 5)} - {dish.takeaway_available_until.slice(0, 5)}
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground/60">Solo consumazione</span>
+                        )}
+                      </div>
                     </div>
                   ))
                 ) : (

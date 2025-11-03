@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
@@ -17,6 +18,9 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
   const [dishName, setDishName] = useState("");
   const [category, setCategory] = useState("primo");
   const [variant, setVariant] = useState("");
+  const [availableForTakeaway, setAvailableForTakeaway] = useState(true);
+  const [takeawayFrom, setTakeawayFrom] = useState("11:00");
+  const [takeawayUntil, setTakeawayUntil] = useState("14:00");
 
   const handleCreateDish = async () => {
     if (!canteenId) {
@@ -35,6 +39,9 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
         name: dishName.trim(),
         category: category,
         variant: variant.trim() || null,
+        available_for_takeaway: availableForTakeaway,
+        takeaway_available_from: availableForTakeaway ? takeawayFrom : null,
+        takeaway_available_until: availableForTakeaway ? takeawayUntil : null,
       });
 
       if (error) throw error;
@@ -42,6 +49,9 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
       toast.success("Piatto aggiunto con successo!");
       setDishName("");
       setVariant("");
+      setAvailableForTakeaway(true);
+      setTakeawayFrom("11:00");
+      setTakeawayUntil("14:00");
       onDishCreated();
     } catch (error: any) {
       toast.error("Errore nell'aggiungere il piatto");
@@ -110,6 +120,51 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
           <p className="text-sm text-muted-foreground">
             Aggiungi note o varianti come "Opzione pesce", "Opzione brodo", ecc.
           </p>
+        </div>
+
+        <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Label htmlFor="takeaway" className="text-base font-semibold">
+                Disponibile per Asporto
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Indica se questo piatto può essere ordinato per asporto
+              </p>
+            </div>
+            <Switch
+              id="takeaway"
+              checked={availableForTakeaway}
+              onCheckedChange={setAvailableForTakeaway}
+            />
+          </div>
+
+          {availableForTakeaway && (
+            <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="space-y-2">
+                <Label htmlFor="takeaway-from" className="text-sm font-semibold">
+                  Dalle
+                </Label>
+                <Input
+                  id="takeaway-from"
+                  type="time"
+                  value={takeawayFrom}
+                  onChange={(e) => setTakeawayFrom(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="takeaway-until" className="text-sm font-semibold">
+                  Alle
+                </Label>
+                <Input
+                  id="takeaway-until"
+                  type="time"
+                  value={takeawayUntil}
+                  onChange={(e) => setTakeawayUntil(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <Button onClick={handleCreateDish} size="lg" className="w-full">
