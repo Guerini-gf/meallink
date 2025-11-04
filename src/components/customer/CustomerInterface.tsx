@@ -84,12 +84,12 @@ export const CustomerInterface = () => {
       // Load tomorrow's menu
       await loadMenuAndOrder(tomorrow, profile.canteen_id, user.id, false);
 
-      // Check if can still order (before 15:00)
+      // Check if can still order (before 16:00)
       const now = new Date();
       const currentHour = now.getHours();
       const currentMinute = now.getMinutes();
       const currentTime = currentHour * 60 + currentMinute;
-      const deadlineTime = 15 * 60; // 15:00
+      const deadlineTime = 16 * 60; // 16:00
       setCanOrder(currentTime < deadlineTime);
 
     } catch (error) {
@@ -239,7 +239,8 @@ export const CustomerInterface = () => {
       secondo: "SECONDI",
       contorno: "CONTORNI",
       dessert: "DESSERT",
-      altro: "ALTRO",
+      aggiuntivo: "AGGIUNTIVI",
+      richieste: "RICHIESTE",
     };
     return labels[category] || category.toUpperCase();
   };
@@ -353,7 +354,7 @@ export const CustomerInterface = () => {
               {canOrder && (
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-4 w-4" />
-                  <span>Ordini entro le 15:00</span>
+                  <span>Ordini entro le 16:00</span>
                 </div>
               )}
             </div>
@@ -362,7 +363,7 @@ export const CustomerInterface = () => {
             {!canOrder && (
               <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
                 <p className="font-semibold text-destructive">
-                  Termine per gli ordini superato (15:00)
+                  Termine per gli ordini superato (16:00)
                 </p>
               </div>
             )}

@@ -22,11 +22,13 @@ interface Dish {
 export const MenuManager = () => {
   const [mealType, setMealType] = useState<"lunch" | "dinner">("lunch");
   const [menuDate, setMenuDate] = useState(new Date().toISOString().split("T")[0]);
-  const [selectedDishes, setSelectedDishes] = useState<{ [category: string]: string }>({
-    primo: "",
-    secondo: "",
-    contorno: "",
-    dessert: "",
+  const [selectedDishes, setSelectedDishes] = useState<{ [category: string]: string[] }>({
+    primo: ["", "", "", ""],
+    secondo: ["", "", "", ""],
+    contorno: ["", "", "", ""],
+    dessert: ["", "", "", ""],
+    aggiuntivo: ["", "", "", ""],
+    richieste: ["", "", "", ""],
   });
   const [existingDishes, setExistingDishes] = useState<Dish[]>([]);
   const [canteenId, setCanteenId] = useState<string | null>(null);
@@ -68,8 +70,45 @@ export const MenuManager = () => {
     }
   };
 
-  const handleDishInput = (category: string, value: string) => {
-    setSelectedDishes((prev) => ({ ...prev, [category]: value }));
+  const handleDishInput = (category: string, index: number, value: string) => {
+    setSelectedDishes((prev) => {
+      const newCategoryDishes = [...prev[category]];
+      newCategoryDishes[index] = value;
+      return { ...prev, [category]: newCategoryDishes };
+    });
+  };
+
+  const handleAddToMenu = (dishName: string, category: string) => {
+    const dishes = selectedDishes[category];
+    const emptyIndex = dishes.findIndex(d => !d.trim());
+    if (emptyIndex === -1) {
+      toast.error(`Massimo 4 ${category} nel menu`);
+      return;
+    }
+    handleDishInput(category, emptyIndex, dishName);
+    toast.success("Piatto aggiunto al menu");
+  };
+
+  const handleDeleteDish = async (dishId: string) => {
+    if (!confirm("Confermi di voler eliminare questo piatto?")) return;
+    
+    try {
+      const { error } = await supabase
+        .from("dishes")
+        .delete()
+        .eq("id", dishId);
+      
+      if (error) throw error;
+      toast.success("Piatto eliminato");
+      loadExistingDishes();
+    } catch (error) {
+      toast.error("Errore nell'eliminare il piatto");
+      console.error(error);
+    }
+  };
+
+  const handlePrintList = () => {
+    window.print();
   };
 
   const handleSaveMenu = async () => {
@@ -78,8 +117,8 @@ export const MenuManager = () => {
       return;
     }
 
-    const dishValues = Object.values(selectedDishes).filter((d) => d.trim());
-    if (dishValues.length === 0) {
+    const allDishes = Object.values(selectedDishes).flat().filter((d) => d.trim());
+    if (allDishes.length === 0) {
       toast.error("Inserisci almeno un piatto");
       return;
     }
@@ -104,34 +143,52 @@ export const MenuManager = () => {
 
       if (menuError) throw menuError;
 
+      // Delete existing menu_dishes for this menu
+      await supabase
+        .from("menu_dishes")
+        .delete()
+        .eq("menu_id", menu.id);
+
       // Add dishes
-      for (const [category, dishName] of Object.entries(selectedDishes)) {
-        if (!dishName.trim()) continue;
+      for (const [category, dishNames] of Object.entries(selectedDishes)) {
+        for (const dishName of dishNames) {
+          if (!dishName.trim()) continue;
 
-        // Create or get dish
-        const { data: dish, error: dishError } = await supabase
-          .from("dishes")
-          .upsert({
-            canteen_id: canteenId,
-            name: dishName,
-            category: category,
-          }, {
-            onConflict: "canteen_id,name,category",
-          })
-          .select()
-          .single();
+          // Find or create dish
+          let { data: existingDish } = await supabase
+            .from("dishes")
+            .select("*")
+            .eq("canteen_id", canteenId)
+            .eq("name", dishName)
+            .eq("category", category)
+            .maybeSingle();
 
-        if (dishError) throw dishError;
+          let dishId: string;
+          if (existingDish) {
+            dishId = existingDish.id;
+          } else {
+            const { data: newDish, error: dishError } = await supabase
+              .from("dishes")
+              .insert({
+                canteen_id: canteenId,
+                name: dishName,
+                category: category,
+              })
+              .select()
+              .single();
 
-        // Link dish to menu
-        await supabase
-          .from("menu_dishes")
-          .upsert({
-            menu_id: menu.id,
-            dish_id: dish.id,
-          }, {
-            onConflict: "menu_id,dish_id",
-          });
+            if (dishError) throw dishError;
+            dishId = newDish.id;
+          }
+
+          // Link dish to menu
+          await supabase
+            .from("menu_dishes")
+            .insert({
+              menu_id: menu.id,
+              dish_id: dishId,
+            });
+        }
       }
 
       toast.success("Menu salvato con successo!");
@@ -143,10 +200,12 @@ export const MenuManager = () => {
   };
 
   const categories = [
-    { key: "primo", label: "Primo Piatto" },
-    { key: "secondo", label: "Secondo Piatto" },
-    { key: "contorno", label: "Contorno" },
+    { key: "primo", label: "Primi Piatti" },
+    { key: "secondo", label: "Secondi Piatti" },
+    { key: "contorno", label: "Contorni" },
     { key: "dessert", label: "Dessert" },
+    { key: "aggiuntivo", label: "Piatti Aggiuntivi" },
+    { key: "richieste", label: "Piatti Richieste" },
   ];
 
   const groupedDishes = existingDishes.reduce((acc, dish) => {
@@ -164,8 +223,12 @@ export const MenuManager = () => {
 
       {/* Existing Dishes Library */}
       <Card className="shadow-medium">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-2xl">Libreria Piatti Esistenti ({existingDishes.length} totali)</CardTitle>
+          <Button onClick={handlePrintList} variant="outline">
+            <Trash2 className="mr-2 h-4 w-4" />
+            Stampa Lista
+          </Button>
         </CardHeader>
         <CardContent className="space-y-6">
           {categories.map(({ key, label }) => (
@@ -181,16 +244,38 @@ export const MenuManager = () => {
                   groupedDishes[key].map((dish) => (
                     <div
                       key={dish.id}
-                      className="p-3 bg-muted/50 rounded-lg border border-border hover:border-primary transition-colors cursor-pointer"
-                      onClick={() => handleDishInput(key, dish.name)}
-                      title="Clicca per aggiungere al menu"
+                      className="p-3 bg-muted/50 rounded-lg border border-border hover:border-primary transition-colors"
                     >
-                      <p className="text-sm font-medium">{dish.name}</p>
-                      {dish.variant && (
-                        <p className="text-xs text-muted-foreground mt-1 italic">
-                          {dish.variant}
-                        </p>
-                      )}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{dish.name}</p>
+                          {dish.variant && (
+                            <p className="text-xs text-muted-foreground mt-1 italic">
+                              {dish.variant}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0"
+                            onClick={() => handleAddToMenu(dish.name, key)}
+                            title="Aggiungi al menu"
+                          >
+                            <PlusCircle className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                            onClick={() => handleDeleteDish(dish.id)}
+                            title="Cancella piatto"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   ))
                 ) : (
@@ -234,21 +319,24 @@ export const MenuManager = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             {categories.map(({ key, label }) => (
-              <div key={key} className="space-y-2">
-                <Label htmlFor={key} className="text-base font-semibold">
-                  {label}
+              <div key={key} className="space-y-3">
+                <Label className="text-base font-semibold">
+                  {label} (max 4 opzioni)
                 </Label>
-                <div className="relative">
-                  <Input
-                    id={key}
-                    value={selectedDishes[key]}
-                    onChange={(e) => handleDishInput(key, e.target.value)}
-                    placeholder={`Inserisci ${label.toLowerCase()}...`}
-                    list={`${key}-suggestions`}
-                    className="text-lg"
-                  />
+                <div className="grid gap-2">
+                  {[0, 1, 2, 3].map((index) => (
+                    <div key={index} className="relative">
+                      <Input
+                        value={selectedDishes[key][index]}
+                        onChange={(e) => handleDishInput(key, index, e.target.value)}
+                        placeholder={`Opzione ${index + 1}...`}
+                        list={`${key}-suggestions`}
+                        className="text-base"
+                      />
+                    </div>
+                  ))}
                   <datalist id={`${key}-suggestions`}>
                     {existingDishes
                       .filter((d) => d.category === key)

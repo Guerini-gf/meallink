@@ -64,6 +64,8 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
     { value: "secondo", label: "Secondo Piatto" },
     { value: "contorno", label: "Contorno" },
     { value: "dessert", label: "Dessert" },
+    { value: "aggiuntivo", label: "Piatto Aggiuntivo" },
+    { value: "richieste", label: "Piatto Richieste" },
   ];
 
   return (
