@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { PlusCircle } from "lucide-react";
+import { Save, Trash2, List, Printer, PlusCircle } from "lucide-react";
 
 interface DishCreatorProps {
   canteenId: string | null;
@@ -22,7 +22,7 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
   const [takeawayFrom, setTakeawayFrom] = useState("11:00");
   const [takeawayUntil, setTakeawayUntil] = useState("14:00");
 
-  const handleCreateDish = async () => {
+  const handleSaveDish = async () => {
     if (!canteenId) {
       toast.error("Mensa non trovata");
       return;
@@ -46,7 +46,7 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
 
       if (error) throw error;
 
-      toast.success("Piatto aggiunto con successo!");
+      toast.success("Piatto salvato nella libreria!");
       setDishName("");
       setVariant("");
       setAvailableForTakeaway(true);
@@ -54,9 +54,42 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
       setTakeawayUntil("14:00");
       onDishCreated();
     } catch (error: any) {
-      toast.error("Errore nell'aggiungere il piatto");
+      toast.error("Errore nel salvare il piatto");
       console.error(error);
     }
+  };
+
+  const handleClearForm = () => {
+    setDishName("");
+    setVariant("");
+    setAvailableForTakeaway(true);
+    setTakeawayFrom("11:00");
+    setTakeawayUntil("14:00");
+    toast.info("Modulo pulito");
+  };
+
+  const handleVerifyList = async () => {
+    if (!canteenId) {
+      toast.error("Mensa non trovata");
+      return;
+    }
+
+    try {
+      const { data, count } = await supabase
+        .from("dishes")
+        .select("*", { count: "exact" })
+        .eq("canteen_id", canteenId);
+      
+      toast.success(`Libreria verificata: ${count} piatti totali`);
+    } catch (error) {
+      toast.error("Errore nella verifica");
+      console.error(error);
+    }
+  };
+
+  const handlePrintList = () => {
+    window.print();
+    toast.success("Lista inviata alla stampante");
   };
 
   const categories = [
@@ -169,10 +202,24 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
           )}
         </div>
 
-        <Button onClick={handleCreateDish} size="lg" className="w-full">
-          <PlusCircle className="mr-2 h-5 w-5" />
-          Aggiungi Piatto
-        </Button>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Button onClick={handleSaveDish} size="lg" className="w-full">
+            <Save className="mr-2 h-4 w-4" />
+            Salva Piatto
+          </Button>
+          <Button onClick={handleClearForm} variant="outline" size="lg" className="w-full">
+            <Trash2 className="mr-2 h-4 w-4" />
+            Cancella
+          </Button>
+          <Button onClick={handleVerifyList} variant="outline" size="lg" className="w-full">
+            <List className="mr-2 h-4 w-4" />
+            Verifica Lista
+          </Button>
+          <Button onClick={handlePrintList} variant="outline" size="lg" className="w-full">
+            <Printer className="mr-2 h-4 w-4" />
+            Stampa Lista
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
