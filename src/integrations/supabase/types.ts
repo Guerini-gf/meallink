@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      allergens: {
+        Row: {
+          created_at: string | null
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       canteens: {
         Row: {
           address: string | null
@@ -81,6 +102,42 @@ export type Database = {
             columns: ["canteen_id"]
             isOneToOne: false
             referencedRelation: "canteens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dish_allergens: {
+        Row: {
+          allergen_id: string | null
+          created_at: string | null
+          dish_id: string | null
+          id: string
+        }
+        Insert: {
+          allergen_id?: string | null
+          created_at?: string | null
+          dish_id?: string | null
+          id?: string
+        }
+        Update: {
+          allergen_id?: string | null
+          created_at?: string | null
+          dish_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dish_allergens_allergen_id_fkey"
+            columns: ["allergen_id"]
+            isOneToOne: false
+            referencedRelation: "allergens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dish_allergens_dish_id_fkey"
+            columns: ["dish_id"]
+            isOneToOne: false
+            referencedRelation: "dishes"
             referencedColumns: ["id"]
           },
         ]
@@ -255,6 +312,42 @@ export type Database = {
             columns: ["canteen_id"]
             isOneToOne: false
             referencedRelation: "canteens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_allergens: {
+        Row: {
+          allergen_id: string | null
+          created_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          allergen_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          allergen_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_allergens_allergen_id_fkey"
+            columns: ["allergen_id"]
+            isOneToOne: false
+            referencedRelation: "allergens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_allergens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

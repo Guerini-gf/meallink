@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Save, Trash2, List, Printer, PlusCircle } from "lucide-react";
+import { Save, Trash2, List, Printer, PlusCircle, X } from "lucide-react";
 
 interface DishCreatorProps {
   canteenId: string | null;
@@ -21,6 +22,34 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
   const [availableForTakeaway, setAvailableForTakeaway] = useState(true);
   const [takeawayFrom, setTakeawayFrom] = useState("11:00");
   const [takeawayUntil, setTakeawayUntil] = useState("14:00");
+  const [allergens, setAllergens] = useState<{ id: string; name: string; icon: string | null }[]>([]);
+  const [selectedAllergens, setSelectedAllergens] = useState<string[]>([]);
+
+  useEffect(() => {
+    loadAllergens();
+  }, []);
+
+  const loadAllergens = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("allergens")
+        .select("*")
+        .order("name");
+      
+      if (error) throw error;
+      setAllergens(data || []);
+    } catch (error) {
+      console.error("Errore caricamento allergie:", error);
+    }
+  };
+
+  const toggleAllergen = (allergenId: string) => {
+    setSelectedAllergens(prev =>
+      prev.includes(allergenId)
+        ? prev.filter(id => id !== allergenId)
+        : [...prev, allergenId]
+    );
+  };
 
   const handleSaveDish = async () => {
     if (!canteenId) {
@@ -34,17 +63,35 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
     }
 
     try {
-      const { error } = await supabase.from("dishes").insert({
-        canteen_id: canteenId,
-        name: dishName.trim(),
-        category: category,
-        variant: variant.trim() || null,
-        available_for_takeaway: availableForTakeaway,
-        takeaway_available_from: availableForTakeaway ? takeawayFrom : null,
-        takeaway_available_until: availableForTakeaway ? takeawayUntil : null,
-      });
+      const { data: dish, error: dishError } = await supabase
+        .from("dishes")
+        .insert({
+          canteen_id: canteenId,
+          name: dishName.trim(),
+          category: category,
+          variant: variant.trim() || null,
+          available_for_takeaway: availableForTakeaway,
+          takeaway_available_from: availableForTakeaway ? takeawayFrom : null,
+          takeaway_available_until: availableForTakeaway ? takeawayUntil : null,
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (dishError) throw dishError;
+
+      // Insert allergens
+      if (selectedAllergens.length > 0 && dish) {
+        const allergenInserts = selectedAllergens.map(allergenId => ({
+          dish_id: dish.id,
+          allergen_id: allergenId,
+        }));
+
+        const { error: allergenError } = await supabase
+          .from("dish_allergens")
+          .insert(allergenInserts);
+
+        if (allergenError) throw allergenError;
+      }
 
       toast.success("Piatto salvato nella libreria!");
       setDishName("");
@@ -52,6 +99,7 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
       setAvailableForTakeaway(true);
       setTakeawayFrom("11:00");
       setTakeawayUntil("14:00");
+      setSelectedAllergens([]);
       onDishCreated();
     } catch (error: any) {
       toast.error("Errore nel salvare il piatto");
@@ -65,6 +113,7 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
     setAvailableForTakeaway(true);
     setTakeawayFrom("11:00");
     setTakeawayUntil("14:00");
+    setSelectedAllergens([]);
     toast.info("Modulo pulito");
   };
 
@@ -200,6 +249,35 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Allergens Section */}
+        <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border">
+          <div className="space-y-1">
+            <Label className="text-base font-semibold">
+              Allergie e Intolleranze
+            </Label>
+            <p className="text-sm text-muted-foreground">
+              Seleziona gli allergeni presenti in questo piatto
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {allergens.map((allergen) => {
+              const isSelected = selectedAllergens.includes(allergen.id);
+              return (
+                <Badge
+                  key={allergen.id}
+                  variant={isSelected ? "default" : "outline"}
+                  className="cursor-pointer text-sm py-1.5 px-3 hover:opacity-80 transition-opacity"
+                  onClick={() => toggleAllergen(allergen.id)}
+                >
+                  {allergen.icon && <span className="mr-1">{allergen.icon}</span>}
+                  {allergen.name}
+                  {isSelected && <X className="ml-1 h-3 w-3" />}
+                </Badge>
+              );
+            })}
+          </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

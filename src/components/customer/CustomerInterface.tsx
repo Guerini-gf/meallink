@@ -6,14 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Calendar, Clock, UtensilsCrossed, CheckCircle2 } from "lucide-react";
+import { Calendar, Clock, UtensilsCrossed, CheckCircle2, AlertTriangle, User } from "lucide-react";
+import { AllergenManager } from "@/components/profile/AllergenManager";
+
+interface Allergen {
+  id: string;
+  name: string;
+  icon: string | null;
+}
 
 interface Dish {
   id: string;
   name: string;
   category: string;
+  allergens?: Allergen[];
 }
 
 interface MenuWithDishes {
@@ -46,6 +55,8 @@ export const CustomerInterface = () => {
   const [canOrder, setCanOrder] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [canteenInfo, setCanteenInfo] = useState<any>(null);
+  const [userAllergens, setUserAllergens] = useState<string[]>([]);
+  const [filterByAllergens, setFilterByAllergens] = useState(false);
 
   useEffect(() => {
     loadMenusAndOrders();
@@ -65,6 +76,14 @@ export const CustomerInterface = () => {
       if (!profile?.canteen_id) return;
       
       setUserProfile(profile);
+
+      // Load user allergens
+      const { data: allergensData } = await supabase
+        .from("user_allergens")
+        .select("allergen_id")
+        .eq("user_id", user.id);
+      
+      setUserAllergens(allergensData?.map(a => a.allergen_id) || []);
 
       // Load canteen info
       const { data: canteen } = await supabase
@@ -134,9 +153,30 @@ export const CustomerInterface = () => {
         .select("*")
         .in("id", dishIds);
 
+      // Load allergens for each dish
+      const dishesWithAllergens = await Promise.all(
+        (dishes || []).map(async (dish) => {
+          const { data: dishAllergens } = await supabase
+            .from("dish_allergens")
+            .select(`
+              allergens (
+                id,
+                name,
+                icon
+              )
+            `)
+            .eq("dish_id", dish.id);
+
+          return {
+            ...dish,
+            allergens: dishAllergens?.map(da => da.allergens).filter(Boolean) || [],
+          };
+        })
+      );
+
       const menuWithDishes = {
         ...menu,
-        dishes: dishes || [],
+        dishes: dishesWithAllergens,
       };
 
       if (isToday) {
@@ -245,6 +285,16 @@ export const CustomerInterface = () => {
     return labels[category] || category.toUpperCase();
   };
 
+  const dishHasUserAllergens = (dish: Dish) => {
+    if (!dish.allergens || dish.allergens.length === 0) return false;
+    return dish.allergens.some(allergen => userAllergens.includes(allergen.id));
+  };
+
+  const getFilteredDishes = (dishes: Dish[]) => {
+    if (!filterByAllergens || userAllergens.length === 0) return dishes;
+    return dishes.filter(dish => !dishHasUserAllergens(dish));
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -255,6 +305,9 @@ export const CustomerInterface = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Allergen Manager */}
+      <AllergenManager />
+
       {/* Header with User and Canteen Info */}
       {userProfile && canteenInfo && (
         <Card className="shadow-lg border-2 border-primary">
@@ -360,6 +413,23 @@ export const CustomerInterface = () => {
             </div>
           </CardHeader>
           <CardContent className="pt-6 space-y-6">
+            {/* Allergen Filter Toggle */}
+            {userAllergens.length > 0 && (
+              <div className="flex items-center justify-between p-4 bg-warning/10 border border-warning/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-warning" />
+                  <Label htmlFor="filter-allergens" className="text-base font-semibold cursor-pointer">
+                    Mostra solo piatti sicuri per me
+                  </Label>
+                </div>
+                <Switch
+                  id="filter-allergens"
+                  checked={filterByAllergens}
+                  onCheckedChange={setFilterByAllergens}
+                />
+              </div>
+            )}
+
             {!canOrder && (
               <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
                 <p className="font-semibold text-destructive">
@@ -369,34 +439,61 @@ export const CustomerInterface = () => {
             )}
 
             {Object.entries(groupDishesByCategory(tomorrowMenu.dishes)).map(
-              ([category, dishes]) => (
-                <div key={category} className="space-y-3">
-                  <h3 className="text-xl font-semibold text-primary">
-                    {getCategoryLabel(category)}
-                  </h3>
-                  <div className="space-y-2">
-                    {dishes.map(dish => (
-                      <div
-                        key={dish.id}
-                        className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-                      >
-                        <Checkbox
-                          id={dish.id}
-                          checked={selectedDishes.includes(dish.id)}
-                          onCheckedChange={() => handleDishToggle(dish.id)}
-                          disabled={!canOrder}
-                        />
-                        <Label
-                          htmlFor={dish.id}
-                          className="flex-1 text-lg cursor-pointer"
-                        >
-                          {dish.name}
-                        </Label>
-                      </div>
-                    ))}
+              ([category, dishes]) => {
+                const filteredDishes = getFilteredDishes(dishes);
+                if (filteredDishes.length === 0) return null;
+
+                return (
+                  <div key={category} className="space-y-3">
+                    <h3 className="text-xl font-semibold text-primary">
+                      {getCategoryLabel(category)}
+                    </h3>
+                    <div className="space-y-2">
+                      {filteredDishes.map(dish => {
+                        const hasWarning = dishHasUserAllergens(dish);
+                        return (
+                          <div
+                            key={dish.id}
+                            className={`flex items-start gap-3 p-4 rounded-lg hover:bg-muted transition-colors ${
+                              hasWarning ? 'bg-destructive/5 border border-destructive/30' : 'bg-muted/50'
+                            }`}
+                          >
+                            <Checkbox
+                              id={dish.id}
+                              checked={selectedDishes.includes(dish.id)}
+                              onCheckedChange={() => handleDishToggle(dish.id)}
+                              disabled={!canOrder}
+                              className="mt-1"
+                            />
+                            <div className="flex-1">
+                              <Label
+                                htmlFor={dish.id}
+                                className="text-lg cursor-pointer block"
+                              >
+                                {dish.name}
+                              </Label>
+                              {dish.allergens && dish.allergens.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                  {dish.allergens.map((allergen) => (
+                                    <Badge
+                                      key={allergen.id}
+                                      variant={userAllergens.includes(allergen.id) ? "destructive" : "secondary"}
+                                      className="text-xs"
+                                    >
+                                      {allergen.icon && <span className="mr-1">{allergen.icon}</span>}
+                                      {allergen.name}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              )
+                );
+              }
             )}
 
             {/* Takeaway Option */}
