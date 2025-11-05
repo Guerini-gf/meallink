@@ -6,8 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { PlusCircle, Save, Trash2 } from "lucide-react";
+import { PlusCircle, Save, Trash2, Search } from "lucide-react";
 import { DishCreator } from "./DishCreator";
+import { DishImporter } from "./DishImporter";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface Dish {
   id: string;
@@ -32,6 +47,9 @@ export const MenuManager = () => {
   });
   const [existingDishes, setExistingDishes] = useState<Dish[]>([]);
   const [canteenId, setCanteenId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const dishesPerPage = 12;
 
   useEffect(() => {
     loadUserCanteen();
@@ -208,7 +226,13 @@ export const MenuManager = () => {
     { key: "richieste", label: "Piatti Richieste" },
   ];
 
-  const groupedDishes = existingDishes.reduce((acc, dish) => {
+  // Filter dishes by search query
+  const filteredDishes = existingDishes.filter((dish) =>
+    dish.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (dish.variant && dish.variant.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const groupedDishes = filteredDishes.reduce((acc, dish) => {
     if (!acc[dish.category]) {
       acc[dish.category] = [];
     }
@@ -218,74 +242,96 @@ export const MenuManager = () => {
 
   return (
     <div className="space-y-6">
+      {/* Dish Importer */}
+      <DishImporter canteenId={canteenId} onImportComplete={loadExistingDishes} />
+
       {/* Dish Creator */}
       <DishCreator canteenId={canteenId} onDishCreated={loadExistingDishes} />
 
       {/* Existing Dishes Library */}
       <Card className="shadow-medium">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-2xl">Libreria Piatti Esistenti ({existingDishes.length} totali)</CardTitle>
-          <Button onClick={handlePrintList} variant="outline">
-            <Trash2 className="mr-2 h-4 w-4" />
-            Stampa Lista
-          </Button>
+        <CardHeader>
+          <div className="flex items-center justify-between mb-4">
+            <CardTitle className="text-2xl">
+              Libreria Piatti Esistenti ({existingDishes.length} totali)
+            </CardTitle>
+            <Button onClick={handlePrintList} variant="outline">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Stampa Lista
+            </Button>
+          </div>
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Cerca piatti per nome o variante..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="pl-9"
+            />
+          </div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {categories.map(({ key, label }) => (
-            <div key={key} className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-primary">{label}</h3>
-                <span className="text-sm text-muted-foreground">
-                  {groupedDishes[key]?.length || 0} piatti
-                </span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {groupedDishes[key]?.length > 0 ? (
-                  groupedDishes[key].map((dish) => (
-                    <div
-                      key={dish.id}
-                      className="p-3 bg-muted/50 rounded-lg border border-border hover:border-primary transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{dish.name}</p>
-                          {dish.variant && (
-                            <p className="text-xs text-muted-foreground mt-1 italic">
-                              {dish.variant}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 w-7 p-0"
-                            onClick={() => handleAddToMenu(dish.name, key)}
-                            title="Aggiungi al menu"
-                          >
-                            <PlusCircle className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                            onClick={() => handleDeleteDish(dish.id)}
-                            title="Cancella piatto"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+        <CardContent>
+          <ScrollArea className="h-[600px] pr-4">
+            <div className="space-y-6">
+              {categories.map(({ key, label }) => {
+                const categoryDishes = groupedDishes[key] || [];
+                if (categoryDishes.length === 0) return null;
+                
+                return (
+                <div key={key} className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-primary">{label}</h3>
+                    <span className="text-sm text-muted-foreground">
+                      {categoryDishes.length} piatti
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {categoryDishes.map((dish) => (
+                      <div
+                        key={dish.id}
+                        className="p-3 bg-muted/50 rounded-lg border border-border hover:border-primary transition-colors"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{dish.name}</p>
+                            {dish.variant && (
+                              <p className="text-xs text-muted-foreground mt-1 italic truncate">
+                                {dish.variant}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex gap-1 flex-shrink-0">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0"
+                              onClick={() => handleAddToMenu(dish.name, key)}
+                              title="Aggiungi al menu"
+                            >
+                              <PlusCircle className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                              onClick={() => handleDeleteDish(dish.id)}
+                              title="Cancella piatto"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground col-span-full">
-                    Nessun piatto disponibile
-                  </p>
-                )}
-              </div>
+                    ))}
+                  </div>
+                </div>
+              );
+              })}
             </div>
-          ))}
+          </ScrollArea>
         </CardContent>
       </Card>
 
@@ -327,23 +373,52 @@ export const MenuManager = () => {
                 </Label>
                 <div className="grid gap-2">
                   {[0, 1, 2, 3].map((index) => (
-                    <div key={index} className="relative">
-                      <Input
-                        value={selectedDishes[key][index]}
-                        onChange={(e) => handleDishInput(key, index, e.target.value)}
-                        placeholder={`Opzione ${index + 1}...`}
-                        list={`${key}-suggestions`}
-                        className="text-base"
-                      />
-                    </div>
+                    <Popover key={index}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className="justify-between w-full text-left font-normal"
+                        >
+                          {selectedDishes[key][index] || `Seleziona opzione ${index + 1}...`}
+                          <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[400px] p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="Cerca piatto..." />
+                          <CommandList>
+                            <CommandEmpty>Nessun piatto trovato.</CommandEmpty>
+                            <CommandGroup>
+                              <ScrollArea className="h-[300px]">
+                                {existingDishes
+                                  .filter((d) => d.category === key)
+                                  .map((dish) => (
+                                    <CommandItem
+                                      key={dish.id}
+                                      value={dish.name}
+                                      onSelect={() => {
+                                        handleDishInput(key, index, dish.name);
+                                      }}
+                                      className="cursor-pointer"
+                                    >
+                                      <div className="flex flex-col">
+                                        <span className="font-medium">{dish.name}</span>
+                                        {dish.variant && (
+                                          <span className="text-xs text-muted-foreground">
+                                            {dish.variant}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                              </ScrollArea>
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   ))}
-                  <datalist id={`${key}-suggestions`}>
-                    {existingDishes
-                      .filter((d) => d.category === key)
-                      .map((dish) => (
-                        <option key={dish.id} value={dish.name} />
-                      ))}
-                  </datalist>
                 </div>
               </div>
             ))}
