@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import logoImage from "@/assets/logo.jpg";
 
@@ -16,7 +15,6 @@ export const AuthForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<"chef" | "operator" | "customer">("customer");
   const [badgeCode, setBadgeCode] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -34,7 +32,7 @@ export const AuthForm = () => {
             emailRedirectTo: `${window.location.origin}/`,
             data: {
               full_name: fullName,
-              role: role,
+              role: 'customer',
               badge_code: badgeCode || undefined,
             },
           },
@@ -92,26 +90,14 @@ export const AuthForm = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="role">Ruolo</Label>
-                  <Select value={role} onValueChange={(value: any) => setRole(value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="customer">Dipendente</SelectItem>
-                      <SelectItem value="operator">Operatore</SelectItem>
-                      <SelectItem value="chef">Chef</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="badgeCode">Codice Badge (opzionale)</Label>
+                  <Label htmlFor="badgeCode">Codice Badge</Label>
                   <Input
                     id="badgeCode"
                     type="text"
                     value={badgeCode}
                     onChange={(e) => setBadgeCode(e.target.value)}
-                    placeholder="123456789"
+                    required
+                    placeholder="Inserisci il tuo codice badge aziendale"
                   />
                 </div>
               </>
