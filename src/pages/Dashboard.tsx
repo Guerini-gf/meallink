@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,44 +8,20 @@ import { CustomerInterface } from "@/components/customer/CustomerInterface";
 import { LogOut, ChefHat, ScanLine, User } from "lucide-react";
 import { toast } from "sonner";
 import logoImage from "@/assets/logo.jpg";
+import { useUserRole } from "@/hooks/use-user-role";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string>("");
-  const [loading, setLoading] = useState(true);
+  const { userRole, userName, loading } = useUserRole();
 
   useEffect(() => {
-    checkUser();
+    checkAuth();
   }, []);
 
-  const checkUser = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        navigate("/auth");
-        return;
-      }
-
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("role, full_name")
-        .eq("id", session.user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error fetching profile:", error);
-      }
-
-      if (profile) {
-        setUserRole(profile.role);
-        setUserName(profile.full_name || "Utente");
-      }
-    } catch (error) {
-      console.error("Error checking user:", error);
-    } finally {
-      setLoading(false);
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate("/auth");
     }
   };
 
@@ -96,34 +72,64 @@ const Dashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {userRole === "chef" && (
+        {/* Solo i dipendenti vedono solo la loro area ordini */}
+        {userRole === "customer" && (
           <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <ChefHat className="h-8 w-8 text-primary" />
-              <h2 className="text-3xl font-bold">Gestione Menu</h2>
-            </div>
-            <MenuManager />
-          </div>
-        )}
-
-        {(userRole === "operator" || userRole === "chef") && (
-          <div className="space-y-6 mt-8">
-            <div className="flex items-center gap-3 mb-6">
-              <ScanLine className="h-8 w-8 text-primary" />
-              <h2 className="text-3xl font-bold">Stazione di Servizio</h2>
-            </div>
-            <ScannerInterface />
-          </div>
-        )}
-
-        {(userRole === "customer" || userRole === "chef" || userRole === "operator") && (
-          <div className="space-y-6 mt-8">
             <div className="flex items-center gap-3 mb-6">
               <User className="h-8 w-8 text-primary" />
               <h2 className="text-3xl font-bold">Area Dipendenti</h2>
             </div>
             <CustomerInterface />
           </div>
+        )}
+
+        {/* Chef e Operator vedono tutto */}
+        {userRole === "chef" && (
+          <>
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 mb-6">
+                <ChefHat className="h-8 w-8 text-primary" />
+                <h2 className="text-3xl font-bold">Gestione Menu</h2>
+              </div>
+              <MenuManager />
+            </div>
+
+            <div className="space-y-6 mt-8">
+              <div className="flex items-center gap-3 mb-6">
+                <ScanLine className="h-8 w-8 text-primary" />
+                <h2 className="text-3xl font-bold">Stazione di Servizio</h2>
+              </div>
+              <ScannerInterface />
+            </div>
+
+            <div className="space-y-6 mt-8">
+              <div className="flex items-center gap-3 mb-6">
+                <User className="h-8 w-8 text-primary" />
+                <h2 className="text-3xl font-bold">Area Dipendenti</h2>
+              </div>
+              <CustomerInterface />
+            </div>
+          </>
+        )}
+
+        {userRole === "operator" && (
+          <>
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 mb-6">
+                <ScanLine className="h-8 w-8 text-primary" />
+                <h2 className="text-3xl font-bold">Stazione di Servizio</h2>
+              </div>
+              <ScannerInterface />
+            </div>
+
+            <div className="space-y-6 mt-8">
+              <div className="flex items-center gap-3 mb-6">
+                <User className="h-8 w-8 text-primary" />
+                <h2 className="text-3xl font-bold">Area Dipendenti</h2>
+              </div>
+              <CustomerInterface />
+            </div>
+          </>
         )}
       </main>
     </div>

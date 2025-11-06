@@ -305,6 +305,26 @@ export const CustomerInterface = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
+      {/* Avviso per gli smanettoni */}
+      <Card className="shadow-medium bg-destructive/5 border-destructive/30">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-6 w-6 text-destructive mt-1 flex-shrink-0" />
+            <div className="space-y-2">
+              <h3 className="font-bold text-lg text-destructive">⚠️ AVVISO IMPORTANTE</h3>
+              <p className="text-sm">
+                Questo sistema è protetto e monitora ogni attività. Qualsiasi tentativo di manipolazione dei dati, 
+                accesso non autorizzato o modifica non consentita verrà rilevato e comporterà{" "}
+                <strong>sanzioni disciplinari</strong> secondo il regolamento aziendale.
+              </p>
+              <p className="text-sm font-semibold">
+                Utilizzare l'applicazione solo per le funzioni autorizzate: visualizzazione menu e invio ordini.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Allergen Manager */}
       <AllergenManager />
 
