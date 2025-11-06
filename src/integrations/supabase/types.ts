@@ -277,7 +277,7 @@ export type Database = {
       }
       profiles: {
         Row: {
-          badge_code: string | null
+          badge_code: string
           canteen_id: string | null
           created_at: string | null
           employee_number: string | null
@@ -287,7 +287,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          badge_code?: string | null
+          badge_code: string
           canteen_id?: string | null
           created_at?: string | null
           employee_number?: string | null
@@ -297,7 +297,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          badge_code?: string | null
+          badge_code?: string
           canteen_id?: string | null
           created_at?: string | null
           employee_number?: string | null
@@ -352,12 +352,39 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["user_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       meal_type: "lunch" | "dinner"
