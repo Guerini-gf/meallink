@@ -2,13 +2,16 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScannerInterface } from "@/components/scanner/ScannerInterface";
 import { MenuManager } from "@/components/menu/MenuManager";
 import { CustomerInterface } from "@/components/customer/CustomerInterface";
-import { LogOut, ChefHat, ScanLine, User } from "lucide-react";
+import { ChefStatistics } from "@/components/dashboard/ChefStatistics";
+import { LogOut } from "lucide-react";
 import { toast } from "sonner";
 import logoImage from "@/assets/logo.jpg";
 import { useUserRole } from "@/hooks/use-user-role";
+import { setupNotifications } from "@/lib/notifications";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -16,6 +19,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     checkAuth();
+    setupNotifications();
   }, []);
 
   const checkAuth = async () => {
@@ -74,62 +78,35 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 py-8">
         {/* Solo i dipendenti vedono solo la loro area ordini */}
         {userRole === "customer" && (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <User className="h-8 w-8 text-primary" />
-              <h2 className="text-3xl font-bold">Area Dipendenti</h2>
-            </div>
-            <CustomerInterface />
-          </div>
+          <CustomerInterface />
         )}
 
-        {/* Chef e Operator vedono tutto */}
+        {/* Chef vede statistiche, gestione menu e scanner */}
         {userRole === "chef" && (
-          <>
-            <div className="space-y-6">
-              <div className="flex items-center gap-3 mb-6">
-                <ChefHat className="h-8 w-8 text-primary" />
-                <h2 className="text-3xl font-bold">Gestione Menu</h2>
-              </div>
+          <Tabs defaultValue="stats" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="stats">Statistiche</TabsTrigger>
+              <TabsTrigger value="menu">Gestione Menu</TabsTrigger>
+              <TabsTrigger value="scanner">Scanner Ordini</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="stats">
+              <ChefStatistics />
+            </TabsContent>
+            
+            <TabsContent value="menu">
               <MenuManager />
-            </div>
-
-            <div className="space-y-6 mt-8">
-              <div className="flex items-center gap-3 mb-6">
-                <ScanLine className="h-8 w-8 text-primary" />
-                <h2 className="text-3xl font-bold">Stazione di Servizio</h2>
-              </div>
+            </TabsContent>
+            
+            <TabsContent value="scanner">
               <ScannerInterface />
-            </div>
-
-            <div className="space-y-6 mt-8">
-              <div className="flex items-center gap-3 mb-6">
-                <User className="h-8 w-8 text-primary" />
-                <h2 className="text-3xl font-bold">Area Dipendenti</h2>
-              </div>
-              <CustomerInterface />
-            </div>
-          </>
+            </TabsContent>
+          </Tabs>
         )}
 
+        {/* Operator vede solo scanner */}
         {userRole === "operator" && (
-          <>
-            <div className="space-y-6">
-              <div className="flex items-center gap-3 mb-6">
-                <ScanLine className="h-8 w-8 text-primary" />
-                <h2 className="text-3xl font-bold">Stazione di Servizio</h2>
-              </div>
-              <ScannerInterface />
-            </div>
-
-            <div className="space-y-6 mt-8">
-              <div className="flex items-center gap-3 mb-6">
-                <User className="h-8 w-8 text-primary" />
-                <h2 className="text-3xl font-bold">Area Dipendenti</h2>
-              </div>
-              <CustomerInterface />
-            </div>
-          </>
+          <ScannerInterface />
         )}
       </main>
     </div>

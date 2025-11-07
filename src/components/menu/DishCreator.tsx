@@ -136,9 +136,85 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
     }
   };
 
-  const handlePrintList = () => {
-    window.print();
-    toast.success("Lista inviata alla stampante");
+  const handlePrintList = async () => {
+    if (!canteenId) {
+      toast.error("Nessuna mensa associata");
+      return;
+    }
+
+    try {
+      const { data: dishes } = await supabase
+        .from('dishes')
+        .select('name, category')
+        .eq('canteen_id', canteenId)
+        .order('category')
+        .order('name');
+
+      if (!dishes || dishes.length === 0) {
+        toast.error("Nessun piatto da stampare");
+        return;
+      }
+
+      // Create print content
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        toast.error("Impossibile aprire la finestra di stampa");
+        return;
+      }
+
+      const groupedDishes = dishes.reduce((acc, dish) => {
+        if (!acc[dish.category]) {
+          acc[dish.category] = [];
+        }
+        acc[dish.category].push(dish.name);
+        return acc;
+      }, {} as Record<string, string[]>);
+
+      let printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Lista Piatti</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            h1 { text-align: center; color: #333; }
+            h2 { color: #666; margin-top: 20px; border-bottom: 2px solid #333; }
+            ul { list-style: none; padding: 0; }
+            li { padding: 5px 0; border-bottom: 1px solid #eee; }
+            @media print {
+              body { padding: 10px; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>SOFTTHECHEFS - Lista Piatti</h1>
+          <p style="text-align: center;">Data: ${new Date().toLocaleDateString('it-IT')}</p>
+      `;
+
+      Object.entries(groupedDishes).forEach(([category, dishNames]) => {
+        printContent += `<h2>${category}</h2><ul>`;
+        dishNames.forEach(name => {
+          printContent += `<li>${name}</li>`;
+        });
+        printContent += `</ul>`;
+      });
+
+      printContent += `
+          <p style="margin-top: 30px; text-align: center; color: #666;">
+            Totale piatti: ${dishes.length}
+          </p>
+        </body>
+        </html>
+      `;
+
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    } catch (error: any) {
+      console.error('Print error:', error);
+      toast.error("Errore durante la stampa");
+    }
   };
 
   const categories = [

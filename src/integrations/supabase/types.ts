@@ -38,6 +38,7 @@ export type Database = {
       canteens: {
         Row: {
           address: string | null
+          canteen_code: string | null
           code: string | null
           created_at: string | null
           id: string
@@ -47,6 +48,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          canteen_code?: string | null
           code?: string | null
           created_at?: string | null
           id?: string
@@ -56,6 +58,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          canteen_code?: string | null
           code?: string | null
           created_at?: string | null
           id?: string
@@ -283,6 +286,7 @@ export type Database = {
           employee_number: string | null
           full_name: string
           id: string
+          push_token: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string | null
         }
@@ -293,6 +297,7 @@ export type Database = {
           employee_number?: string | null
           full_name: string
           id: string
+          push_token?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
         }
@@ -303,6 +308,7 @@ export type Database = {
           employee_number?: string | null
           full_name?: string
           id?: string
+          push_token?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
         }
