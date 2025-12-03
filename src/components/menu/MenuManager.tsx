@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { PlusCircle, Save, Trash2, Search } from "lucide-react";
 import { DishCreator } from "./DishCreator";
-import { DishImporter } from "./DishImporter";
 import { DishImporterCSV } from "./DishImporterCSV";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -243,9 +242,8 @@ export const MenuManager = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <DishImporterCSV canteenId={canteenId} onImportComplete={loadExistingDishes} />
-        <DishImporter canteenId={canteenId} onImportComplete={loadExistingDishes} />
         <DishCreator canteenId={canteenId} onDishCreated={loadExistingDishes} />
       </div>
 
