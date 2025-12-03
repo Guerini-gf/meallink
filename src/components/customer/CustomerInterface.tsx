@@ -7,10 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Calendar, Clock, UtensilsCrossed, CheckCircle2, AlertTriangle, User } from "lucide-react";
 import { AllergenManager } from "@/components/profile/AllergenManager";
+import { TableReservation } from "@/components/reservation/TableReservation";
 
 interface Allergen {
   id: string;
@@ -305,7 +307,14 @@ export const CustomerInterface = () => {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Avviso per gli smanettoni */}
+      <Tabs defaultValue="menu" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="menu">Menu & Ordini</TabsTrigger>
+          <TabsTrigger value="reservations">Prenota Tavolo</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="menu" className="space-y-6">
+          {/* Avviso per gli smanettoni */}
       <Card className="shadow-medium bg-destructive/5 border-destructive/30">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
@@ -594,6 +603,12 @@ export const CustomerInterface = () => {
           </CardContent>
         </Card>
       )}
+        </TabsContent>
+
+        <TabsContent value="reservations">
+          <TableReservation />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

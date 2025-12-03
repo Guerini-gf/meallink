@@ -44,6 +44,8 @@ export type Database = {
           id: string
           is_active: boolean | null
           name: string
+          seats_per_table: number | null
+          total_tables: number | null
           updated_at: string | null
         }
         Insert: {
@@ -54,6 +56,8 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name: string
+          seats_per_table?: number | null
+          total_tables?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -64,6 +68,8 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name?: string
+          seats_per_table?: number | null
+          total_tables?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -322,6 +328,60 @@ export type Database = {
           },
         ]
       }
+      table_reservations: {
+        Row: {
+          canteen_id: string
+          created_at: string | null
+          guests: number | null
+          id: string
+          reservation_date: string
+          status: string | null
+          table_number: number
+          time_slot: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          canteen_id: string
+          created_at?: string | null
+          guests?: number | null
+          id?: string
+          reservation_date: string
+          status?: string | null
+          table_number: number
+          time_slot: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          canteen_id?: string
+          created_at?: string | null
+          guests?: number | null
+          id?: string
+          reservation_date?: string
+          status?: string | null
+          table_number?: number
+          time_slot?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "table_reservations_canteen_id_fkey"
+            columns: ["canteen_id"]
+            isOneToOne: false
+            referencedRelation: "canteens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "table_reservations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_allergens: {
         Row: {
           allergen_id: string | null
@@ -384,6 +444,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_canteen: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
