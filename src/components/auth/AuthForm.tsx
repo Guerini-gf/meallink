@@ -136,7 +136,6 @@ export const AuthForm = () => {
                     <SelectContent>
                       <SelectItem value="customer">Cliente</SelectItem>
                       <SelectItem value="chef">Chef</SelectItem>
-                      <SelectItem value="operator">Operatore</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
