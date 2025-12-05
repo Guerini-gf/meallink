@@ -191,7 +191,7 @@ export const DishCreator = ({ canteenId, onDishCreated }: DishCreatorProps) => {
           <p style="text-align: center;">Data: ${new Date().toLocaleDateString('it-IT')}</p>
       `;
 
-      Object.entries(groupedDishes).forEach(([category, dishNames]) => {
+      (Object.entries(groupedDishes) as [string, string[]][]).forEach(([category, dishNames]) => {
         printContent += `<h2>${category}</h2><ul>`;
         dishNames.forEach(name => {
           printContent += `<li>${name}</li>`;
