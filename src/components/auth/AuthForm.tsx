@@ -25,6 +25,35 @@ export const AuthForm = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const [pendingEmployee, setPendingEmployee] = useState<{
+    full_name: string;
+    employee_number: string | null;
+    canteen_id: string;
+  } | null>(null);
+
+  // Check if badge is pre-registered when customer enters badge code
+  const checkPendingEmployee = async (badge: string) => {
+    if (role !== 'customer' || !badge || badge.length < 3) {
+      setPendingEmployee(null);
+      return;
+    }
+
+    const { data } = await supabase
+      .from('pending_employees')
+      .select('full_name, employee_number, canteen_id, claimed_by')
+      .eq('badge_code', badge.toUpperCase())
+      .is('claimed_by', null)
+      .maybeSingle();
+
+    if (data) {
+      setPendingEmployee(data);
+      setFullName(data.full_name);
+      toast.success(`Badge riconosciuto! Benvenuto ${data.full_name}`);
+    } else {
+      setPendingEmployee(null);
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -52,7 +81,7 @@ export const AuthForm = () => {
             .from('canteens')
             .select('id')
             .eq('canteen_code', validatedData.canteenCode)
-            .single();
+            .maybeSingle();
 
           if (!canteen) {
             toast.error("Codice mensa non valido");
@@ -61,21 +90,41 @@ export const AuthForm = () => {
           }
         }
 
-        const { error } = await supabase.auth.signUp({
+        // For customers with pre-registered badge, use the canteen from pending_employees
+        const signupMetadata: Record<string, string | undefined> = {
+          full_name: validatedData.fullName,
+          badge_code: validatedData.badgeCode,
+          role: role,
+          canteen_code: validatedData.canteenCode,
+        };
+
+        if (role === 'customer' && pendingEmployee) {
+          signupMetadata.canteen_id = pendingEmployee.canteen_id;
+          signupMetadata.employee_number = pendingEmployee.employee_number || undefined;
+        }
+
+        const { data: signupData, error } = await supabase.auth.signUp({
           email: validatedData.email,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/`,
-            data: {
-              full_name: validatedData.fullName,
-              badge_code: validatedData.badgeCode,
-              role: role,
-              canteen_code: validatedData.canteenCode,
-            },
+            data: signupMetadata,
           },
         });
 
         if (error) throw error;
+
+        // Mark the pending employee as claimed
+        if (role === 'customer' && pendingEmployee && signupData.user) {
+          await supabase
+            .from('pending_employees')
+            .update({
+              claimed_by: signupData.user.id,
+              claimed_at: new Date().toISOString(),
+            })
+            .eq('badge_code', validatedData.badgeCode);
+        }
+
         toast.success("Registrazione completata! Effettua il login.");
         setMode("login");
       } else {
@@ -158,10 +207,19 @@ export const AuthForm = () => {
                     id="badgeCode"
                     type="text"
                     value={badgeCode}
-                    onChange={(e) => setBadgeCode(e.target.value.toUpperCase())}
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase();
+                      setBadgeCode(value);
+                      checkPendingEmployee(value);
+                    }}
                     required
                     placeholder="ABC123"
                   />
+                  {pendingEmployee && role === 'customer' && (
+                    <p className="text-sm text-green-600 flex items-center gap-1">
+                      ✓ Badge pre-registrato dalla tua azienda
+                    </p>
+                  )}
                 </div>
 
                 {role === 'chef' && (
