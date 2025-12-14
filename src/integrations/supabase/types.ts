@@ -284,6 +284,50 @@ export type Database = {
           },
         ]
       }
+      pending_employees: {
+        Row: {
+          badge_code: string
+          canteen_id: string
+          claimed_at: string | null
+          claimed_by: string | null
+          created_at: string
+          created_by: string | null
+          employee_number: string | null
+          full_name: string
+          id: string
+        }
+        Insert: {
+          badge_code: string
+          canteen_id: string
+          claimed_at?: string | null
+          claimed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          employee_number?: string | null
+          full_name: string
+          id?: string
+        }
+        Update: {
+          badge_code?: string
+          canteen_id?: string
+          claimed_at?: string | null
+          claimed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          employee_number?: string | null
+          full_name?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_employees_canteen_id_fkey"
+            columns: ["canteen_id"]
+            isOneToOne: false
+            referencedRelation: "canteens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           badge_code: string
