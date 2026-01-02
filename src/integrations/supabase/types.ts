@@ -488,6 +488,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_badge_canteen: { Args: { _badge_code: string }; Returns: string }
       get_user_canteen: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
@@ -496,6 +497,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      validate_badge_code: { Args: { _badge_code: string }; Returns: boolean }
     }
     Enums: {
       meal_type: "lunch" | "dinner"
