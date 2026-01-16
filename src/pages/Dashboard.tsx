@@ -8,6 +8,7 @@ import { MenuManager } from "@/components/menu/MenuManager";
 import { CustomerInterface } from "@/components/customer/CustomerInterface";
 import { ChefStatistics } from "@/components/dashboard/ChefStatistics";
 import { EmployeeManager } from "@/components/employees/EmployeeManager";
+import { PWAInstallBanner } from "@/components/pwa/PWAInstallBanner";
 import { LogOut } from "lucide-react";
 import { toast } from "sonner";
 import logoImage from "@/assets/logo.jpg";
@@ -115,6 +116,9 @@ const Dashboard = () => {
           <ScannerInterface />
         )}
       </main>
+
+      {/* PWA Install Banner */}
+      <PWAInstallBanner />
     </div>
   );
 };
