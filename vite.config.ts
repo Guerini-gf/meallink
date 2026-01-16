@@ -15,27 +15,45 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'logo.jpg'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'pwa-icon-192.png', 'pwa-icon-512.png'],
       manifest: {
-        name: 'SOFTTHECHEFS - Gestione Mense',
+        name: 'MealLink - Gestione Mense Digitale',
         short_name: 'MealLink',
-        description: 'Sistema digitale per la gestione delle mense aziendali',
-        theme_color: '#ffffff',
+        description: 'Sistema digitale professionale per la gestione delle mense aziendali',
+        theme_color: '#22c55e',
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
         scope: '/',
         start_url: '/',
+        categories: ['food', 'business', 'productivity'],
         icons: [
           {
-            src: '/logo.jpg',
+            src: '/pwa-icon-192.png',
             sizes: '192x192',
-            type: 'image/jpeg'
+            type: 'image/png',
+            purpose: 'any'
           },
           {
-            src: '/logo.jpg',
+            src: '/pwa-icon-512.png',
             sizes: '512x512',
-            type: 'image/jpeg'
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/pwa-icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          }
+        ],
+        screenshots: [
+          {
+            src: '/pwa-icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            form_factor: 'narrow',
+            label: 'MealLink App'
           }
         ]
       },
@@ -48,9 +66,10 @@ export default defineConfig(({ mode }) => ({
             options: {
               cacheName: 'supabase-cache',
               expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 // 24 hours
-              }
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
+              },
+              networkTimeoutSeconds: 10
             }
           }
         ]
