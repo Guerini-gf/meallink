@@ -17,7 +17,15 @@ export const DishImporterCSV = ({ canteenId, onImportComplete }: DishImporterCSV
     const dishes: Array<{ name: string; category: string; variant?: string }> = [];
     const lines = csvText.split('\n');
     
+    // Validate row count (max 2000 rows for dishes)
+    const MAX_ROWS = 2000;
+    if (lines.length > MAX_ROWS) {
+      throw new Error(`Troppi record nel file (max ${MAX_ROWS})`);
+    }
+    
     let currentCategory = '';
+    const MAX_NAME_LENGTH = 200;
+    const MAX_VARIANT_LENGTH = 100;
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
@@ -67,6 +75,14 @@ export const DishImporterCSV = ({ canteenId, onImportComplete }: DishImporterCSV
             name = dishName.replace(/\s*\([^)]+\)/, '').trim();
           }
           
+          // Validate field lengths
+          if (name.length > MAX_NAME_LENGTH) {
+            name = name.substring(0, MAX_NAME_LENGTH);
+          }
+          if (variant.length > MAX_VARIANT_LENGTH) {
+            variant = variant.substring(0, MAX_VARIANT_LENGTH);
+          }
+          
           dishes.push({
             name,
             category: currentCategory || 'Altro',
@@ -89,9 +105,27 @@ export const DishImporterCSV = ({ canteenId, onImportComplete }: DishImporterCSV
     try {
       // Fetch the CSV file
       const response = await fetch('/APPLICAZIONE-MENSE-2.csv');
+      
+      // Validate response
+      if (!response.ok) {
+        throw new Error("Impossibile caricare il file CSV");
+      }
+      
+      // Check content length (max 5MB)
+      const contentLength = response.headers.get('content-length');
+      const MAX_FILE_SIZE = 5 * 1024 * 1024;
+      if (contentLength && parseInt(contentLength) > MAX_FILE_SIZE) {
+        throw new Error("File troppo grande (max 5MB)");
+      }
+      
       const csvText = await response.text();
       
-      // Parse dishes from CSV
+      // Additional size check after reading
+      if (csvText.length > MAX_FILE_SIZE) {
+        throw new Error("File troppo grande (max 5MB)");
+      }
+      
+      // Parse dishes from CSV (includes row count validation)
       const dishes = parseCSVData(csvText);
       
       if (dishes.length === 0) {
@@ -100,8 +134,16 @@ export const DishImporterCSV = ({ canteenId, onImportComplete }: DishImporterCSV
         return;
       }
 
+      // Limit batch size (max 500 dishes per insert)
+      const MAX_BATCH_SIZE = 500;
+      if (dishes.length > MAX_BATCH_SIZE) {
+        toast.warning(`Verranno importati solo i primi ${MAX_BATCH_SIZE} piatti`);
+      }
+      
+      const dishesToInsert = dishes.slice(0, MAX_BATCH_SIZE);
+
       // Insert dishes into database
-      const dishesWithCanteen = dishes.map(dish => ({
+      const dishesWithCanteen = dishesToInsert.map(dish => ({
         ...dish,
         canteen_id: canteenId,
         available_for_takeaway: true,
@@ -115,11 +157,10 @@ export const DishImporterCSV = ({ canteenId, onImportComplete }: DishImporterCSV
 
       if (error) throw error;
 
-      toast.success(`${dishes.length} piatti importati con successo!`);
+      toast.success(`${dishesToInsert.length} piatti importati con successo!`);
       onImportComplete();
     } catch (error: any) {
-      console.error('Import error:', error);
-      toast.error("Errore durante l'importazione: " + error.message);
+      toast.error("Errore durante l'importazione: " + (error.message || "Errore sconosciuto"));
     } finally {
       setLoading(false);
     }
