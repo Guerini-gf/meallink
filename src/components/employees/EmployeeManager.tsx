@@ -132,12 +132,27 @@ export const EmployeeManager = () => {
     const file = e.target.files?.[0];
     if (!file || !canteenId) return;
 
+    // Validate file size (max 5MB)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("File troppo grande (max 5MB)");
+      e.target.value = '';
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = async (event) => {
       try {
         const text = event.target?.result as string;
         const lines = text.split('\n').filter(line => line.trim());
         
+        // Validate row count (max 1000 rows)
+        const MAX_ROWS = 1000;
+        if (lines.length > MAX_ROWS) {
+          toast.error(`Troppi record nel file (max ${MAX_ROWS})`);
+          return;
+        }
+
         // Skip header if present
         const startIndex = lines[0].toLowerCase().includes('nome') || 
                            lines[0].toLowerCase().includes('badge') ? 1 : 0;
@@ -151,17 +166,41 @@ export const EmployeeManager = () => {
           created_by: string | undefined;
         }[] = [];
 
+        // Validate and parse each row
         for (let i = startIndex; i < lines.length; i++) {
           const parts = lines[i].split(/[,;]/).map(p => p.trim().replace(/"/g, ''));
-          if (parts.length >= 2) {
-            employees.push({
-              canteen_id: canteenId,
-              full_name: parts[0],
-              badge_code: parts[1].toUpperCase(),
-              employee_number: parts[2] || null,
-              created_by: user?.id,
-            });
+          
+          // Validate required fields
+          if (parts.length < 2 || !parts[0] || !parts[1]) {
+            toast.error(`Riga ${i + 1}: dati mancanti (richiesti nome e badge)`);
+            return;
           }
+
+          // Validate field lengths
+          const MAX_NAME_LENGTH = 100;
+          const MAX_BADGE_LENGTH = 50;
+          const MAX_EMPLOYEE_NUMBER_LENGTH = 50;
+
+          if (parts[0].length > MAX_NAME_LENGTH) {
+            toast.error(`Riga ${i + 1}: nome troppo lungo (max ${MAX_NAME_LENGTH} caratteri)`);
+            return;
+          }
+          if (parts[1].length > MAX_BADGE_LENGTH) {
+            toast.error(`Riga ${i + 1}: badge troppo lungo (max ${MAX_BADGE_LENGTH} caratteri)`);
+            return;
+          }
+          if (parts[2] && parts[2].length > MAX_EMPLOYEE_NUMBER_LENGTH) {
+            toast.error(`Riga ${i + 1}: matricola troppo lunga (max ${MAX_EMPLOYEE_NUMBER_LENGTH} caratteri)`);
+            return;
+          }
+
+          employees.push({
+            canteen_id: canteenId,
+            full_name: parts[0],
+            badge_code: parts[1].toUpperCase(),
+            employee_number: parts[2] || null,
+            created_by: user?.id,
+          });
         }
 
         if (employees.length === 0) {
