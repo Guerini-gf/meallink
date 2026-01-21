@@ -519,12 +519,31 @@ export type Database = {
     }
     Functions: {
       get_badge_canteen: { Args: { _badge_code: string }; Returns: string }
+      get_operational_profile: {
+        Args: { _badge_code: string }
+        Returns: {
+          badge_code: string
+          canteen_id: string
+          full_name: string
+          id: string
+        }[]
+      }
+      get_push_subscription_ids_for_canteen: {
+        Args: { _canteen_id: string }
+        Returns: {
+          user_id: string
+        }[]
+      }
       get_user_canteen: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      user_has_push_subscription: {
+        Args: { _user_id: string }
         Returns: boolean
       }
       validate_badge_code: { Args: { _badge_code: string }; Returns: boolean }
