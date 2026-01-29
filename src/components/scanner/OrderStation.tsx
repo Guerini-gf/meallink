@@ -62,17 +62,16 @@ export const OrderStation = ({ stationNumber, menuDishes, menuId, canteenCode }:
     }
 
     try {
-      // Find user by badge
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("badge_code", badgeCode)
-        .single();
+      // Find user by badge using secure function (only returns operational data)
+      const { data: profiles, error: profileError } = await supabase
+        .rpc("get_operational_profile", { _badge_code: badgeCode });
 
-      if (!profile) {
+      if (profileError || !profiles || profiles.length === 0) {
         toast.error(`Stazione ${stationNumber}: Badge non trovato`);
         return;
       }
+
+      const profile = profiles[0];
 
       // Save order
       const { error } = await supabase
