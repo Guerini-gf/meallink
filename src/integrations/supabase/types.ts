@@ -518,6 +518,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_pending_employees: { Args: never; Returns: undefined }
       get_badge_canteen: { Args: { _badge_code: string }; Returns: string }
       get_operational_profile: {
         Args: { _badge_code: string }
