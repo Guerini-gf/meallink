@@ -370,6 +370,7 @@ export const EmployeeManager = () => {
                       <TableHead>Nome</TableHead>
                       <TableHead>Badge</TableHead>
                       <TableHead>Matricola</TableHead>
+                      <TableHead>Scadenza</TableHead>
                       <TableHead className="w-[100px]">Azioni</TableHead>
                     </TableRow>
                   </TableHeader>
