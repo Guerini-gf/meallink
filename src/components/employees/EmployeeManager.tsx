@@ -319,6 +319,25 @@ export const EmployeeManager = () => {
         </CardContent>
       </Card>
 
+      {(expiringEmployees.length > 0 || expiredEmployees.length > 0) && (
+        <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Attenzione scadenza</AlertTitle>
+          <AlertDescription>
+            {expiredEmployees.length > 0 && (
+              <span className="block">
+                <strong>{expiredEmployees.length}</strong> dipendente/i scaduto/i (verranno rimossi automaticamente).
+              </span>
+            )}
+            {expiringEmployees.length > 0 && (
+              <span className="block">
+                <strong>{expiringEmployees.length}</strong> dipendente/i in scadenza entro 15 giorni. Sollecitare la registrazione.
+              </span>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Elenco Dipendenti</CardTitle>
