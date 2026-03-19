@@ -233,6 +233,20 @@ export const EmployeeManager = () => {
   const pendingEmployees = employees.filter(e => !e.claimed_by);
   const registeredEmployees = employees.filter(e => e.claimed_by);
 
+  const getDaysRemaining = (createdAt: string) => {
+    const created = new Date(createdAt);
+    const expiry = new Date(created.getTime() + 90 * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    return Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  };
+
+  const expiringEmployees = pendingEmployees.filter(e => {
+    const days = getDaysRemaining(e.created_at);
+    return days <= 15 && days > 0;
+  });
+
+  const expiredEmployees = pendingEmployees.filter(e => getDaysRemaining(e.created_at) <= 0);
+
   return (
     <div className="space-y-6">
       <Card>
