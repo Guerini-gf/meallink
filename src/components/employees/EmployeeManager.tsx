@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Upload, Trash2, UserCheck, UserX } from "lucide-react";
+import { Plus, Upload, Trash2, UserCheck, UserX, AlertTriangle, Clock } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface PendingEmployee {
@@ -231,6 +233,20 @@ export const EmployeeManager = () => {
   const pendingEmployees = employees.filter(e => !e.claimed_by);
   const registeredEmployees = employees.filter(e => e.claimed_by);
 
+  const getDaysRemaining = (createdAt: string) => {
+    const created = new Date(createdAt);
+    const expiry = new Date(created.getTime() + 90 * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    return Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  };
+
+  const expiringEmployees = pendingEmployees.filter(e => {
+    const days = getDaysRemaining(e.created_at);
+    return days <= 15 && days > 0;
+  });
+
+  const expiredEmployees = pendingEmployees.filter(e => getDaysRemaining(e.created_at) <= 0);
+
   return (
     <div className="space-y-6">
       <Card>
@@ -303,6 +319,25 @@ export const EmployeeManager = () => {
         </CardContent>
       </Card>
 
+      {(expiringEmployees.length > 0 || expiredEmployees.length > 0) && (
+        <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Attenzione scadenza</AlertTitle>
+          <AlertDescription>
+            {expiredEmployees.length > 0 && (
+              <span className="block">
+                <strong>{expiredEmployees.length}</strong> dipendente/i scaduto/i (verranno rimossi automaticamente).
+              </span>
+            )}
+            {expiringEmployees.length > 0 && (
+              <span className="block">
+                <strong>{expiringEmployees.length}</strong> dipendente/i in scadenza entro 15 giorni. Sollecitare la registrazione.
+              </span>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Elenco Dipendenti</CardTitle>
@@ -335,6 +370,7 @@ export const EmployeeManager = () => {
                       <TableHead>Nome</TableHead>
                       <TableHead>Badge</TableHead>
                       <TableHead>Matricola</TableHead>
+                      <TableHead>Scadenza</TableHead>
                       <TableHead className="w-[100px]">Azioni</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -344,6 +380,15 @@ export const EmployeeManager = () => {
                         <TableCell className="font-medium">{emp.full_name}</TableCell>
                         <TableCell>{emp.badge_code}</TableCell>
                         <TableCell>{emp.employee_number || '-'}</TableCell>
+                        <TableCell>
+                          {(() => {
+                            const days = getDaysRemaining(emp.created_at);
+                            if (days <= 0) return <Badge variant="destructive" className="gap-1"><Clock className="h-3 w-3" />Scaduto</Badge>;
+                            if (days <= 15) return <Badge variant="destructive" className="gap-1 bg-orange-500 hover:bg-orange-600"><Clock className="h-3 w-3" />{days}g</Badge>;
+                            if (days <= 30) return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" />{days}g</Badge>;
+                            return <span className="text-muted-foreground">{days}g</span>;
+                          })()}
+                        </TableCell>
                         <TableCell>
                           <Button
                             variant="ghost"
