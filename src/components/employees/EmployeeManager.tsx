@@ -381,6 +381,15 @@ export const EmployeeManager = () => {
                         <TableCell>{emp.badge_code}</TableCell>
                         <TableCell>{emp.employee_number || '-'}</TableCell>
                         <TableCell>
+                          {(() => {
+                            const days = getDaysRemaining(emp.created_at);
+                            if (days <= 0) return <Badge variant="destructive" className="gap-1"><Clock className="h-3 w-3" />Scaduto</Badge>;
+                            if (days <= 15) return <Badge variant="destructive" className="gap-1 bg-orange-500 hover:bg-orange-600"><Clock className="h-3 w-3" />{days}g</Badge>;
+                            if (days <= 30) return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" />{days}g</Badge>;
+                            return <span className="text-muted-foreground">{days}g</span>;
+                          })()}
+                        </TableCell>
+                        <TableCell>
                           <Button
                             variant="ghost"
                             size="sm"
