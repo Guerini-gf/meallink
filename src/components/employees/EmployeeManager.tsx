@@ -328,7 +328,7 @@ export const EmployeeManager = () => {
                 />
               </Label>
               <span className="text-sm text-muted-foreground">
-                Formato: Nome,Badge,Matricola (una riga per dipendente)
+                Formato: Nome,Badge,Matricola,Email (una riga per dipendente)
               </span>
             </div>
           </div>
