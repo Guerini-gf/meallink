@@ -91,6 +91,7 @@ export const EmployeeManager = () => {
           full_name: fullName.trim(),
           badge_code: badgeCode.trim().toUpperCase(),
           employee_number: employeeNumber.trim() || null,
+          email: email.trim() || null,
           created_by: user?.id,
         });
 
