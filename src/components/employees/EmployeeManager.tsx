@@ -16,6 +16,7 @@ interface PendingEmployee {
   full_name: string;
   badge_code: string;
   employee_number: string | null;
+  email: string | null;
   created_at: string;
   claimed_by: string | null;
   claimed_at: string | null;
