@@ -28,6 +28,7 @@ export const EmployeeManager = () => {
   const [fullName, setFullName] = useState("");
   const [badgeCode, setBadgeCode] = useState("");
   const [employeeNumber, setEmployeeNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [adding, setAdding] = useState(false);
   const [canteenId, setCanteenId] = useState<string | null>(null);
 
