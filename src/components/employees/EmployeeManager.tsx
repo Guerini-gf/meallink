@@ -169,6 +169,7 @@ export const EmployeeManager = () => {
           full_name: string; 
           badge_code: string; 
           employee_number: string | null;
+          email: string | null;
           created_by: string | undefined;
         }[] = [];
 
