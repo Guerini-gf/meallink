@@ -206,6 +206,7 @@ export const EmployeeManager = () => {
             full_name: parts[0],
             badge_code: parts[1].toUpperCase(),
             employee_number: parts[2] || null,
+            email: parts[3] || null,
             created_by: user?.id,
           });
         }
