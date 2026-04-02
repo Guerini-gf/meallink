@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Upload, Trash2, UserCheck, UserX, AlertTriangle, Clock } from "lucide-react";
+import { Plus, Upload, Trash2, UserCheck, UserX, AlertTriangle, Clock, Mail, Copy, ExternalLink } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,6 +16,7 @@ interface PendingEmployee {
   full_name: string;
   badge_code: string;
   employee_number: string | null;
+  email: string | null;
   created_at: string;
   claimed_by: string | null;
   claimed_at: string | null;
@@ -27,6 +28,7 @@ export const EmployeeManager = () => {
   const [fullName, setFullName] = useState("");
   const [badgeCode, setBadgeCode] = useState("");
   const [employeeNumber, setEmployeeNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [adding, setAdding] = useState(false);
   const [canteenId, setCanteenId] = useState<string | null>(null);
 
@@ -89,6 +91,7 @@ export const EmployeeManager = () => {
           full_name: fullName.trim(),
           badge_code: badgeCode.trim().toUpperCase(),
           employee_number: employeeNumber.trim() || null,
+          email: email.trim() || null,
           created_by: user?.id,
         });
 
@@ -105,6 +108,7 @@ export const EmployeeManager = () => {
       setFullName("");
       setBadgeCode("");
       setEmployeeNumber("");
+      setEmail("");
       await fetchEmployees(canteenId);
     } catch (error: any) {
       toast.error(error.message || "Errore nell'aggiunta");
@@ -165,6 +169,7 @@ export const EmployeeManager = () => {
           full_name: string; 
           badge_code: string; 
           employee_number: string | null;
+          email: string | null;
           created_by: string | undefined;
         }[] = [];
 
@@ -201,6 +206,7 @@ export const EmployeeManager = () => {
             full_name: parts[0],
             badge_code: parts[1].toUpperCase(),
             employee_number: parts[2] || null,
+            email: parts[3] || null,
             created_by: user?.id,
           });
         }
@@ -247,6 +253,26 @@ export const EmployeeManager = () => {
 
   const expiredEmployees = pendingEmployees.filter(e => getDaysRemaining(e.created_at) <= 0);
 
+  const getRegistrationLink = (emp: PendingEmployee) => {
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/auth?badge=${encodeURIComponent(emp.badge_code)}`;
+  };
+
+  const handleCopyLink = (emp: PendingEmployee) => {
+    const link = getRegistrationLink(emp);
+    navigator.clipboard.writeText(link);
+    toast.success(`Link di registrazione copiato per ${emp.full_name}`);
+  };
+
+  const handleSendReminder = (emp: PendingEmployee) => {
+    const link = getRegistrationLink(emp);
+    const subject = encodeURIComponent("Completa la tua registrazione alla mensa");
+    const body = encodeURIComponent(
+      `Ciao ${emp.full_name},\n\nTi ricordiamo di completare la registrazione alla mensa aziendale.\n\nIl tuo codice badge è: ${emp.badge_code}\n\nRegistrati qui: ${link}\n\nGrazie!`
+    );
+    window.open(`mailto:${emp.email}?subject=${subject}&body=${body}`, '_blank');
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -256,7 +282,7 @@ export const EmployeeManager = () => {
             Aggiungi Dipendente
           </CardTitle>
           <CardDescription>
-            Inserisci manualmente o importa da CSV (formato: Nome,Badge,Matricola)
+            Inserisci manualmente o importa da CSV (formato: Nome,Badge,Matricola,Email)
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -291,6 +317,16 @@ export const EmployeeManager = () => {
                   placeholder="12345"
                 />
               </div>
+              <div className="flex-1 min-w-[200px]">
+                <Label htmlFor="email">Email (opzionale)</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="mario@azienda.it"
+                />
+              </div>
               <Button type="submit" disabled={adding}>
                 <Plus className="h-4 w-4 mr-2" />
                 {adding ? "Aggiunta..." : "Aggiungi"}
@@ -312,7 +348,7 @@ export const EmployeeManager = () => {
                 />
               </Label>
               <span className="text-sm text-muted-foreground">
-                Formato: Nome,Badge,Matricola (una riga per dipendente)
+                Formato: Nome,Badge,Matricola,Email (una riga per dipendente)
               </span>
             </div>
           </div>
@@ -369,9 +405,9 @@ export const EmployeeManager = () => {
                     <TableRow>
                       <TableHead>Nome</TableHead>
                       <TableHead>Badge</TableHead>
-                      <TableHead>Matricola</TableHead>
+                      <TableHead>Email</TableHead>
                       <TableHead>Scadenza</TableHead>
-                      <TableHead className="w-[100px]">Azioni</TableHead>
+                      <TableHead className="w-[180px]">Azioni</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -379,7 +415,7 @@ export const EmployeeManager = () => {
                       <TableRow key={emp.id}>
                         <TableCell className="font-medium">{emp.full_name}</TableCell>
                         <TableCell>{emp.badge_code}</TableCell>
-                        <TableCell>{emp.employee_number || '-'}</TableCell>
+                        <TableCell className="text-sm">{emp.email || <span className="text-muted-foreground">-</span>}</TableCell>
                         <TableCell>
                           {(() => {
                             const days = getDaysRemaining(emp.created_at);
@@ -390,13 +426,33 @@ export const EmployeeManager = () => {
                           })()}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteEmployee(emp.id)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              title="Copia link registrazione"
+                              onClick={() => handleCopyLink(emp)}
+                            >
+                              <Copy className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                            {emp.email && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                title="Invia sollecito email"
+                                onClick={() => handleSendReminder(emp)}
+                              >
+                                <Mail className="h-4 w-4 text-primary" />
+                              </Button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteEmployee(emp.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
