@@ -108,6 +108,7 @@ export const EmployeeManager = () => {
       setFullName("");
       setBadgeCode("");
       setEmployeeNumber("");
+      setEmail("");
       await fetchEmployees(canteenId);
     } catch (error: any) {
       toast.error(error.message || "Errore nell'aggiunta");
