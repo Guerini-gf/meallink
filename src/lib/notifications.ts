@@ -60,6 +60,45 @@ export const scheduleMenuNotification = async () => {
   }
 };
 
+export const checkUnclaimedEmployeesNotification = async () => {
+  const { data: user } = await supabase.auth.getUser();
+  if (!user.user) return;
+
+  // Check if user is a chef
+  const { data: roles } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.user.id)
+    .eq('role', 'chef');
+
+  if (!roles || roles.length === 0) return;
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('canteen_id')
+    .eq('id', user.user.id)
+    .single();
+
+  if (!profile?.canteen_id) return;
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const { data: unclaimed, error } = await supabase
+    .from('pending_employees')
+    .select('id, full_name')
+    .eq('canteen_id', profile.canteen_id)
+    .is('claimed_by', null)
+    .lt('created_at', thirtyDaysAgo.toISOString());
+
+  if (error || !unclaimed || unclaimed.length === 0) return;
+
+  sendLocalNotification(
+    "Dipendenti non registrati",
+    `${unclaimed.length} dipendente/i non si sono registrati da oltre 30 giorni. Controlla il pannello dipendenti.`
+  );
+};
+
 export const scheduleDeadlineNotification = () => {
   const now = new Date();
   const deadline = new Date();
@@ -85,9 +124,13 @@ export const setupNotifications = async () => {
     
     // Check for deadline every 30 minutes
     setInterval(scheduleDeadlineNotification, 30 * 60 * 1000);
+
+    // Check for unclaimed employees every 6 hours (chef only)
+    setInterval(checkUnclaimedEmployeesNotification, 6 * 60 * 60 * 1000);
     
     // Initial checks
     scheduleMenuNotification();
     scheduleDeadlineNotification();
+    checkUnclaimedEmployeesNotification();
   }
 };
