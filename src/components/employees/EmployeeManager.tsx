@@ -262,7 +262,7 @@ export const EmployeeManager = () => {
             Aggiungi Dipendente
           </CardTitle>
           <CardDescription>
-            Inserisci manualmente o importa da CSV (formato: Nome,Badge,Matricola)
+            Inserisci manualmente o importa da CSV (formato: Nome,Badge,Matricola,Email)
           </CardDescription>
         </CardHeader>
         <CardContent>
