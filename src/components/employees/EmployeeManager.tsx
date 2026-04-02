@@ -253,6 +253,26 @@ export const EmployeeManager = () => {
 
   const expiredEmployees = pendingEmployees.filter(e => getDaysRemaining(e.created_at) <= 0);
 
+  const getRegistrationLink = (emp: PendingEmployee) => {
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/auth?badge=${encodeURIComponent(emp.badge_code)}`;
+  };
+
+  const handleCopyLink = (emp: PendingEmployee) => {
+    const link = getRegistrationLink(emp);
+    navigator.clipboard.writeText(link);
+    toast.success(`Link di registrazione copiato per ${emp.full_name}`);
+  };
+
+  const handleSendReminder = (emp: PendingEmployee) => {
+    const link = getRegistrationLink(emp);
+    const subject = encodeURIComponent("Completa la tua registrazione alla mensa");
+    const body = encodeURIComponent(
+      `Ciao ${emp.full_name},\n\nTi ricordiamo di completare la registrazione alla mensa aziendale.\n\nIl tuo codice badge è: ${emp.badge_code}\n\nRegistrati qui: ${link}\n\nGrazie!`
+    );
+    window.open(`mailto:${emp.email}?subject=${subject}&body=${body}`, '_blank');
+  };
+
   return (
     <div className="space-y-6">
       <Card>
