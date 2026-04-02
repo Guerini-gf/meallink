@@ -405,9 +405,9 @@ export const EmployeeManager = () => {
                     <TableRow>
                       <TableHead>Nome</TableHead>
                       <TableHead>Badge</TableHead>
-                      <TableHead>Matricola</TableHead>
+                      <TableHead>Email</TableHead>
                       <TableHead>Scadenza</TableHead>
-                      <TableHead className="w-[100px]">Azioni</TableHead>
+                      <TableHead className="w-[180px]">Azioni</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -415,7 +415,7 @@ export const EmployeeManager = () => {
                       <TableRow key={emp.id}>
                         <TableCell className="font-medium">{emp.full_name}</TableCell>
                         <TableCell>{emp.badge_code}</TableCell>
-                        <TableCell>{emp.employee_number || '-'}</TableCell>
+                        <TableCell className="text-sm">{emp.email || <span className="text-muted-foreground">-</span>}</TableCell>
                         <TableCell>
                           {(() => {
                             const days = getDaysRemaining(emp.created_at);
@@ -426,13 +426,33 @@ export const EmployeeManager = () => {
                           })()}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteEmployee(emp.id)}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              title="Copia link registrazione"
+                              onClick={() => handleCopyLink(emp)}
+                            >
+                              <Copy className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                            {emp.email && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                title="Invia sollecito email"
+                                onClick={() => handleSendReminder(emp)}
+                              >
+                                <Mail className="h-4 w-4 text-primary" />
+                              </Button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteEmployee(emp.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
