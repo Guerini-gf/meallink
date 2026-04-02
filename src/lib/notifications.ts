@@ -124,9 +124,13 @@ export const setupNotifications = async () => {
     
     // Check for deadline every 30 minutes
     setInterval(scheduleDeadlineNotification, 30 * 60 * 1000);
+
+    // Check for unclaimed employees every 6 hours (chef only)
+    setInterval(checkUnclaimedEmployeesNotification, 6 * 60 * 60 * 1000);
     
     // Initial checks
     scheduleMenuNotification();
     scheduleDeadlineNotification();
+    checkUnclaimedEmployeesNotification();
   }
 };
