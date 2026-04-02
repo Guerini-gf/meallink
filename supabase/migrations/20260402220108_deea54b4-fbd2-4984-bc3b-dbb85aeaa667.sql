@@ -1,0 +1,1 @@
+ALTER TABLE public.pending_employees ADD COLUMN email text DEFAULT NULL;

@@ -292,6 +292,7 @@ export type Database = {
           claimed_by: string | null
           created_at: string
           created_by: string | null
+          email: string | null
           employee_number: string | null
           full_name: string
           id: string
@@ -303,6 +304,7 @@ export type Database = {
           claimed_by?: string | null
           created_at?: string
           created_by?: string | null
+          email?: string | null
           employee_number?: string | null
           full_name: string
           id?: string
@@ -314,6 +316,7 @@ export type Database = {
           claimed_by?: string | null
           created_at?: string
           created_by?: string | null
+          email?: string | null
           employee_number?: string | null
           full_name?: string
           id?: string
