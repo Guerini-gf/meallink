@@ -297,6 +297,16 @@ export const EmployeeManager = () => {
                   placeholder="12345"
                 />
               </div>
+              <div className="flex-1 min-w-[200px]">
+                <Label htmlFor="email">Email (opzionale)</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="mario@azienda.it"
+                />
+              </div>
               <Button type="submit" disabled={adding}>
                 <Plus className="h-4 w-4 mr-2" />
                 {adding ? "Aggiunta..." : "Aggiungi"}
