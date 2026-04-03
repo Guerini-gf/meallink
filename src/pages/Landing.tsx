@@ -1,0 +1,349 @@
+import { useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import logoImage from "@/assets/logo.jpg";
+import {
+  Utensils,
+  Smartphone,
+  BarChart3,
+  ScanLine,
+  Bell,
+  ShieldCheck,
+  Users,
+  Rocket,
+  Check,
+  ArrowRight,
+  ChevronDown,
+  Star,
+  Zap,
+  TrendingUp,
+} from "lucide-react";
+
+const Landing = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) navigate("/dashboard");
+    };
+    check();
+  }, [navigate]);
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  return (
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+      {/* NAV */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src={logoImage} alt="MealLink" className="h-10 w-auto rounded-lg" />
+            <span className="text-xl font-bold text-foreground tracking-tight">MealLink</span>
+          </div>
+          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
+            <button onClick={() => scrollTo("features")} className="hover:text-primary transition-colors">Funzionalità</button>
+            <button onClick={() => scrollTo("how")} className="hover:text-primary transition-colors">Come Funziona</button>
+            <button onClick={() => scrollTo("pricing")} className="hover:text-primary transition-colors">Prezzi</button>
+            <button onClick={() => scrollTo("investors")} className="hover:text-primary transition-colors">Investitori</button>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link to="/auth">
+              <Button variant="outline" size="sm">Accedi</Button>
+            </Link>
+            <Link to="/auth">
+              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                Inizia Gratis
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* HERO */}
+      <section className="pt-32 pb-20 md:pt-44 md:pb-32 relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
+        <div className="container mx-auto px-4 relative">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
+              <Zap className="h-4 w-4" />
+              La mensa aziendale diventa smart
+            </div>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.1] mb-6">
+              Digitalizza la tua
+              <span className="text-primary block">mensa aziendale</span>
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+              Ordini digitali, gestione allergeni, statistiche in tempo reale e zero sprechi.
+              MealLink è la piattaforma SaaS che rivoluziona la ristorazione collettiva.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link to="/auth">
+                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-base px-8 h-12 shadow-lg shadow-primary/25">
+                  Prova Gratuita <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-base px-8 h-12"
+                onClick={() => scrollTo("how")}
+              >
+                Scopri come funziona
+              </Button>
+            </div>
+          </div>
+          <div className="flex justify-center mt-16">
+            <button onClick={() => scrollTo("features")} className="animate-bounce text-muted-foreground">
+              <ChevronDown className="h-6 w-6" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* TRUST BAR */}
+      <section className="py-8 bg-muted border-y border-border">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 text-muted-foreground">
+            {[
+              { value: "€2.5B", label: "Mercato italiano" },
+              { value: "45K+", label: "Mense in Italia" },
+              { value: "70%", label: "Ancora manuali" },
+              { value: "-30%", label: "Sprechi riducibili" },
+            ].map((s) => (
+              <div key={s.label} className="text-center">
+                <div className="text-2xl md:text-3xl font-bold text-primary">{s.value}</div>
+                <div className="text-xs md:text-sm">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section id="features" className="py-20 md:py-28">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Tutto ciò che serve alla tua mensa
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Un'unica piattaforma per chef, operatori e dipendenti.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {[
+              { icon: Utensils, title: "Gestione Menu", desc: "Crea e pubblica il menù giornaliero con import CSV e gestione varianti." },
+              { icon: Smartphone, title: "Ordini da Smartphone", desc: "I dipendenti scelgono i piatti dal telefono, con opzione asporto." },
+              { icon: BarChart3, title: "Statistiche Real-time", desc: "Dashboard chef con conteggi precisi per ogni piatto e trend settimanali." },
+              { icon: ScanLine, title: "Scanner Badge", desc: "Conferma il ritiro del pasto con scansione rapida del badge aziendale." },
+              { icon: ShieldCheck, title: "Gestione Allergeni", desc: "Ogni dipendente indica le proprie intolleranze, alert automatici." },
+              { icon: Bell, title: "Notifiche Push", desc: "Avvisa i dipendenti del menù del giorno e delle scadenze ordini." },
+            ].map((f) => (
+              <div
+                key={f.title}
+                className="group p-6 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <f.icon className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{f.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section id="how" className="py-20 md:py-28 bg-muted">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Semplicissimo da usare
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Quattro passaggi per digitalizzare la mensa.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+            {[
+              { step: "01", icon: Utensils, title: "Lo Chef crea il menù", desc: "Pubblica il menù del giorno con pochi click" },
+              { step: "02", icon: Smartphone, title: "Il dipendente ordina", desc: "Sceglie i piatti dallo smartphone prima del pranzo" },
+              { step: "03", icon: BarChart3, title: "Lo Chef prepara", desc: "Vede i conteggi esatti e prepara senza sprechi" },
+              { step: "04", icon: ScanLine, title: "Ritiro con badge", desc: "Scansione rapida del badge per confermare il pasto" },
+            ].map((s, i) => (
+              <div key={s.step} className="text-center relative">
+                {i < 3 && (
+                  <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-primary/20" />
+                )}
+                <div className="h-16 w-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-lg font-bold shadow-lg shadow-primary/25">
+                  {s.step}
+                </div>
+                <s.icon className="h-8 w-8 text-primary mx-auto mb-3" />
+                <h3 className="font-semibold text-foreground mb-1">{s.title}</h3>
+                <p className="text-sm text-muted-foreground">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section id="pricing" className="py-20 md:py-28">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Prezzi trasparenti
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Scegli il piano perfetto per la tua azienda.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {[
+              {
+                name: "Base",
+                price: "€99",
+                period: "/mese",
+                desc: "Per piccole aziende",
+                features: ["Fino a 100 dipendenti", "Menu digitale", "Ordini base", "Report mensili"],
+                highlight: false,
+              },
+              {
+                name: "Professional",
+                price: "€249",
+                period: "/mese",
+                desc: "La scelta più popolare",
+                features: ["Fino a 300 dipendenti", "Scanner badge", "Statistiche avanzate", "Gestione allergeni", "Asporto"],
+                highlight: true,
+              },
+              {
+                name: "Enterprise",
+                price: "Custom",
+                period: "",
+                desc: "Per grandi organizzazioni",
+                features: ["Dipendenti illimitati", "Multi-mensa", "API personalizzate", "Supporto dedicato", "SLA garantito"],
+                highlight: false,
+              },
+            ].map((plan) => (
+              <div
+                key={plan.name}
+                className={`rounded-2xl p-8 flex flex-col ${
+                  plan.highlight
+                    ? "bg-primary text-primary-foreground ring-2 ring-primary shadow-xl shadow-primary/20 scale-[1.03]"
+                    : "bg-card border border-border"
+                }`}
+              >
+                {plan.highlight && (
+                  <div className="flex items-center gap-1 mb-4">
+                    <Star className="h-4 w-4 fill-current" />
+                    <span className="text-xs font-semibold uppercase tracking-wider">Più popolare</span>
+                  </div>
+                )}
+                <h3 className={`text-xl font-bold mb-1 ${plan.highlight ? "" : "text-foreground"}`}>{plan.name}</h3>
+                <p className={`text-sm mb-4 ${plan.highlight ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                  {plan.desc}
+                </p>
+                <div className="mb-6">
+                  <span className="text-4xl font-bold">{plan.price}</span>
+                  <span className={`text-sm ${plan.highlight ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                    {plan.period}
+                  </span>
+                </div>
+                <ul className="space-y-3 mb-8 flex-1">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-sm">
+                      <Check className={`h-4 w-4 flex-shrink-0 ${plan.highlight ? "" : "text-primary"}`} />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/auth">
+                  <Button
+                    className={`w-full ${
+                      plan.highlight
+                        ? "bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                        : "bg-primary text-primary-foreground hover:bg-primary/90"
+                    }`}
+                  >
+                    Inizia Ora
+                  </Button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* INVESTORS */}
+      <section id="investors" className="py-20 md:py-28 bg-foreground text-background">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-background/10 text-background/90 text-sm font-medium mb-8">
+              <TrendingUp className="h-4 w-4" />
+              Opportunità di investimento
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+              Investi nel futuro della<br />ristorazione collettiva
+            </h2>
+            <p className="text-background/70 text-lg mb-12 leading-relaxed">
+              MealLink affronta un mercato da €2.5 miliardi in Italia con il 70% delle mense
+              ancora gestite manualmente. Il nostro MVP è già funzionante e pronto per la scala.
+            </p>
+            <div className="grid sm:grid-cols-3 gap-6 mb-12">
+              {[
+                { icon: Rocket, title: "MVP Pronto", desc: "Prodotto funzionante e testato sul campo" },
+                { icon: Users, title: "Team Dedicato", desc: "Competenze food-tech e sviluppo software" },
+                { icon: TrendingUp, title: "Break-even 18 mesi", desc: "Con 25+ clienti attivi sul piano Professional" },
+              ].map((item) => (
+                <div key={item.title} className="p-6 rounded-xl bg-background/5 border border-background/10">
+                  <item.icon className="h-8 w-8 mb-3 text-secondary" />
+                  <h3 className="font-semibold mb-1">{item.title}</h3>
+                  <p className="text-sm text-background/60">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-8 h-12">
+                Richiedi il Pitch Deck
+              </Button>
+              <Link to="/auth">
+                <Button size="lg" variant="outline" className="text-base px-8 h-12 border-background/20 text-background hover:bg-background/10">
+                  Prova la Demo
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="py-12 border-t border-border bg-muted">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <img src={logoImage} alt="MealLink" className="h-8 w-auto rounded-lg" />
+              <span className="font-semibold text-foreground">MealLink</span>
+              <span className="text-sm text-muted-foreground">by SOFTTHECHEFS</span>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <button onClick={() => scrollTo("features")} className="hover:text-primary transition-colors">Funzionalità</button>
+              <button onClick={() => scrollTo("pricing")} className="hover:text-primary transition-colors">Prezzi</button>
+              <Link to="/install" className="hover:text-primary transition-colors">Installa App</Link>
+              <Link to="/auth" className="hover:text-primary transition-colors">Accedi</Link>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              © 2026 SOFTTHECHEFS. Tutti i diritti riservati.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Landing;
