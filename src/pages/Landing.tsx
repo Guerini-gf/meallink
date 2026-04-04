@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import logoImage from "@/assets/logo.jpg";
+import { motion } from "framer-motion";
 import {
   Utensils,
   Smartphone,
@@ -19,6 +20,16 @@ import {
   Zap,
   TrendingUp,
 } from "lucide-react";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const } },
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -67,20 +78,20 @@ const Landing = () => {
       <section className="pt-32 pb-20 md:pt-44 md:pb-32 relative bg-gradient-to-br from-primary via-primary/85 to-accent/70 text-primary-foreground">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--secondary)/0.15),transparent_60%)]" />
         <div className="container mx-auto px-4 relative">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-foreground/15 text-primary-foreground text-sm font-medium mb-8">
+            <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="max-w-3xl mx-auto text-center">
+            <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-foreground/15 text-primary-foreground text-sm font-medium mb-8">
               <Zap className="h-4 w-4" />
               La mensa aziendale diventa smart
-            </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-primary-foreground leading-[1.1] mb-6">
+            </motion.div>
+            <motion.h1 variants={fadeUp} className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-primary-foreground leading-[1.1] mb-6">
               Digitalizza la tua
               <span className="text-secondary block">mensa aziendale</span>
-            </h1>
-            <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+            </motion.h1>
+            <motion.p variants={fadeUp} className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-10 leading-relaxed">
               Ordini digitali, gestione allergeni, statistiche in tempo reale e zero sprechi.
               MealLink è la piattaforma SaaS che rivoluziona la ristorazione collettiva.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            </motion.p>
+            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/auth">
                 <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-8 h-12 shadow-lg shadow-secondary/25">
                   Prova Gratuita <ArrowRight className="ml-2 h-5 w-5" />
@@ -94,8 +105,8 @@ const Landing = () => {
               >
                 Scopri come funziona
               </Button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
           <div className="flex justify-center mt-16">
             <button onClick={() => scrollTo("features")} className="animate-bounce text-primary-foreground/60">
               <ChevronDown className="h-6 w-6" />
@@ -106,7 +117,7 @@ const Landing = () => {
 
       {/* TRUST BAR */}
       <section className="py-8 bg-muted border-y border-border">
-        <div className="container mx-auto px-4">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={staggerContainer} className="container mx-auto px-4">
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 text-muted-foreground">
             {[
               { value: "€2.5B", label: "Mercato italiano" },
@@ -114,27 +125,27 @@ const Landing = () => {
               { value: "70%", label: "Ancora manuali" },
               { value: "-30%", label: "Sprechi riducibili" },
             ].map((s) => (
-              <div key={s.label} className="text-center">
+              <motion.div key={s.label} variants={fadeUp} className="text-center">
                 <div className="text-2xl md:text-3xl font-bold text-primary">{s.value}</div>
                 <div className="text-xs md:text-sm">{s.label}</div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* FEATURES */}
       <section id="features" className="py-20 md:py-28">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeUp} className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Tutto ciò che serve alla tua mensa
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
               Un'unica piattaforma per chef, operatori e dipendenti.
             </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          </motion.div>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.1 }} variants={staggerContainer} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[
               { icon: Utensils, title: "Gestione Menu", desc: "Crea e pubblica il menù giornaliero con import CSV e gestione varianti." },
               { icon: Smartphone, title: "Ordini da Smartphone", desc: "I dipendenti scelgono i piatti dal telefono, con opzione asporto." },
@@ -143,8 +154,9 @@ const Landing = () => {
               { icon: ShieldCheck, title: "Gestione Allergeni", desc: "Ogni dipendente indica le proprie intolleranze, alert automatici." },
               { icon: Bell, title: "Notifiche Push", desc: "Avvisa i dipendenti del menù del giorno e delle scadenze ordini." },
             ].map((f) => (
-              <div
+              <motion.div
                 key={f.title}
+                variants={fadeUp}
                 className="group p-6 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300"
               >
                 <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
@@ -152,31 +164,31 @@ const Landing = () => {
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2">{f.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* HOW IT WORKS */}
       <section id="how" className="py-20 md:py-28 bg-muted">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeUp} className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Semplicissimo da usare
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
               Quattro passaggi per digitalizzare la mensa.
             </p>
-          </div>
-          <div className="grid md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+          </motion.div>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={staggerContainer} className="grid md:grid-cols-4 gap-8 max-w-4xl mx-auto">
             {[
               { step: "01", icon: Utensils, title: "Lo Chef crea il menù", desc: "Pubblica il menù del giorno con pochi click" },
               { step: "02", icon: Smartphone, title: "Il dipendente ordina", desc: "Sceglie i piatti dallo smartphone prima del pranzo" },
               { step: "03", icon: BarChart3, title: "Lo Chef prepara", desc: "Vede i conteggi esatti e prepara senza sprechi" },
               { step: "04", icon: ScanLine, title: "Ritiro con badge", desc: "Scansione rapida del badge per confermare il pasto" },
             ].map((s, i) => (
-              <div key={s.step} className="text-center relative">
+              <motion.div key={s.step} variants={fadeUp} className="text-center relative">
                 {i < 3 && (
                   <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-primary/20" />
                 )}
@@ -186,24 +198,24 @@ const Landing = () => {
                 <s.icon className="h-8 w-8 text-primary mx-auto mb-3" />
                 <h3 className="font-semibold text-foreground mb-1">{s.title}</h3>
                 <p className="text-sm text-muted-foreground">{s.desc}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* PRICING */}
       <section id="pricing" className="py-20 md:py-28">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeUp} className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Prezzi trasparenti
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
               Scegli il piano perfetto per la tua azienda.
             </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          </motion.div>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.1 }} variants={staggerContainer} className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {[
               {
                 name: "Base",
@@ -230,8 +242,9 @@ const Landing = () => {
                 highlight: false,
               },
             ].map((plan) => (
-              <div
+              <motion.div
                 key={plan.name}
+                variants={fadeUp}
                 className={`rounded-2xl p-8 flex flex-col ${
                   plan.highlight
                     ? "bg-primary text-primary-foreground ring-2 ring-primary shadow-xl shadow-primary/20 scale-[1.03]"
@@ -273,28 +286,28 @@ const Landing = () => {
                     Inizia Ora
                   </Button>
                 </Link>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* INVESTORS */}
       <section id="investors" className="py-20 md:py-28 bg-foreground text-background">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-background/10 text-background/90 text-sm font-medium mb-8">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={staggerContainer} className="max-w-3xl mx-auto text-center">
+            <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-background/10 text-background/90 text-sm font-medium mb-8">
               <TrendingUp className="h-4 w-4" />
               Opportunità di investimento
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            </motion.div>
+            <motion.h2 variants={fadeUp} className="text-3xl md:text-5xl font-bold mb-6">
               Investi nel futuro della<br />ristorazione collettiva
-            </h2>
-            <p className="text-background/70 text-lg mb-12 leading-relaxed">
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-background/70 text-lg mb-12 leading-relaxed">
               MealLink affronta un mercato da €2.5 miliardi in Italia con il 70% delle mense
               ancora gestite manualmente. Il nostro MVP è già funzionante e pronto per la scala.
-            </p>
-            <div className="grid sm:grid-cols-3 gap-6 mb-12">
+            </motion.p>
+            <motion.div variants={fadeUp} className="grid sm:grid-cols-3 gap-6 mb-12">
               {[
                 { icon: Rocket, title: "MVP Pronto", desc: "Prodotto funzionante e testato sul campo" },
                 { icon: Users, title: "Team Dedicato", desc: "Competenze food-tech e sviluppo software" },
@@ -306,8 +319,8 @@ const Landing = () => {
                   <p className="text-sm text-background/60">{item.desc}</p>
                 </div>
               ))}
-            </div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+            </motion.div>
+            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
               <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-8 h-12">
                 Richiedi il Pitch Deck
               </Button>
@@ -316,15 +329,15 @@ const Landing = () => {
                   Prova la Demo
                 </Button>
               </Link>
-            </div>
-            <div className="pt-8 border-t border-background/10">
+            </motion.div>
+            <motion.div variants={fadeUp} className="pt-8 border-t border-background/10">
               <p className="text-sm text-background/60 mb-2">Contatto diretto</p>
               <p className="text-lg font-semibold">Guerini Gianfelice</p>
               <a href="tel:+393357109529" className="text-secondary hover:text-secondary/80 transition-colors font-medium">
                 Tel +39 335 710 9529
               </a>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
