@@ -137,15 +137,15 @@ const Landing = () => {
       {/* FEATURES */}
       <section id="features" className="py-20 md:py-28">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeUp} className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Tutto ciò che serve alla tua mensa
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
               Un'unica piattaforma per chef, operatori e dipendenti.
             </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          </motion.div>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.1 }} variants={staggerContainer} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[
               { icon: Utensils, title: "Gestione Menu", desc: "Crea e pubblica il menù giornaliero con import CSV e gestione varianti." },
               { icon: Smartphone, title: "Ordini da Smartphone", desc: "I dipendenti scelgono i piatti dal telefono, con opzione asporto." },
@@ -154,8 +154,9 @@ const Landing = () => {
               { icon: ShieldCheck, title: "Gestione Allergeni", desc: "Ogni dipendente indica le proprie intolleranze, alert automatici." },
               { icon: Bell, title: "Notifiche Push", desc: "Avvisa i dipendenti del menù del giorno e delle scadenze ordini." },
             ].map((f) => (
-              <div
+              <motion.div
                 key={f.title}
+                variants={fadeUp}
                 className="group p-6 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300"
               >
                 <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
@@ -163,9 +164,9 @@ const Landing = () => {
                 </div>
                 <h3 className="text-lg font-semibold text-foreground mb-2">{f.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
