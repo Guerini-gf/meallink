@@ -307,7 +307,7 @@ const Landing = () => {
                 </div>
               ))}
             </div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
               <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-8 h-12">
                 Richiedi il Pitch Deck
               </Button>
@@ -316,6 +316,13 @@ const Landing = () => {
                   Prova la Demo
                 </Button>
               </Link>
+            </div>
+            <div className="pt-8 border-t border-background/10">
+              <p className="text-sm text-background/60 mb-2">Contatto diretto</p>
+              <p className="text-lg font-semibold">Guerini Gianfelice</p>
+              <a href="tel:+393357109529" className="text-secondary hover:text-secondary/80 transition-colors font-medium">
+                Tel +39 335 710 9529
+              </a>
             </div>
           </div>
         </div>
@@ -330,11 +337,17 @@ const Landing = () => {
               <span className="font-semibold text-foreground">MealLink</span>
               <span className="text-sm text-muted-foreground">by SOFTTHECHEFS</span>
             </div>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <button onClick={() => scrollTo("features")} className="hover:text-primary transition-colors">Funzionalità</button>
-              <button onClick={() => scrollTo("pricing")} className="hover:text-primary transition-colors">Prezzi</button>
-              <Link to="/install" className="hover:text-primary transition-colors">Installa App</Link>
-              <Link to="/auth" className="hover:text-primary transition-colors">Accedi</Link>
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-6">
+                <button onClick={() => scrollTo("features")} className="hover:text-primary transition-colors">Funzionalità</button>
+                <button onClick={() => scrollTo("pricing")} className="hover:text-primary transition-colors">Prezzi</button>
+                <Link to="/install" className="hover:text-primary transition-colors">Installa App</Link>
+                <Link to="/auth" className="hover:text-primary transition-colors">Accedi</Link>
+              </div>
+              <span className="hidden md:inline text-border">|</span>
+              <a href="tel:+393357109529" className="hover:text-primary transition-colors">
+                Guerini Gianfelice — +39 335 710 9529
+              </a>
             </div>
             <p className="text-xs text-muted-foreground">
               © 2026 SOFTTHECHEFS. Tutti i diritti riservati.
