@@ -82,14 +82,14 @@ const Landing = () => {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/auth">
-                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-base px-8 h-12 shadow-lg shadow-primary/25">
+                <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-8 h-12 shadow-lg shadow-secondary/25">
                   Prova Gratuita <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Button
                 size="lg"
                 variant="outline"
-                className="text-base px-8 h-12"
+                className="text-base px-8 h-12 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
                 onClick={() => scrollTo("how")}
               >
                 Scopri come funziona
