@@ -207,15 +207,15 @@ const Landing = () => {
       {/* PRICING */}
       <section id="pricing" className="py-20 md:py-28">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeUp} className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Prezzi trasparenti
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
               Scegli il piano perfetto per la tua azienda.
             </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          </motion.div>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.1 }} variants={staggerContainer} className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {[
               {
                 name: "Base",
