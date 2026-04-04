@@ -97,7 +97,7 @@ const Landing = () => {
             </div>
           </div>
           <div className="flex justify-center mt-16">
-            <button onClick={() => scrollTo("features")} className="animate-bounce text-muted-foreground">
+            <button onClick={() => scrollTo("features")} className="animate-bounce text-primary-foreground/60">
               <ChevronDown className="h-6 w-6" />
             </button>
           </div>
