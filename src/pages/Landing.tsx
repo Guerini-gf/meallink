@@ -78,7 +78,6 @@ const Landing = () => {
       <section className="pt-32 pb-20 md:pt-44 md:pb-32 relative bg-gradient-to-br from-primary via-primary/85 to-accent/70 text-primary-foreground">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--secondary)/0.15),transparent_60%)]" />
         <div className="container mx-auto px-4 relative">
-          <div className="max-w-3xl mx-auto text-center">
             <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="max-w-3xl mx-auto text-center">
             <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-foreground/15 text-primary-foreground text-sm font-medium mb-8">
               <Zap className="h-4 w-4" />
