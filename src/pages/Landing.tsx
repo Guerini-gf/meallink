@@ -117,7 +117,7 @@ const Landing = () => {
 
       {/* TRUST BAR */}
       <section className="py-8 bg-muted border-y border-border">
-        <div className="container mx-auto px-4">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={staggerContainer} className="container mx-auto px-4">
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 text-muted-foreground">
             {[
               { value: "€2.5B", label: "Mercato italiano" },
@@ -125,13 +125,13 @@ const Landing = () => {
               { value: "70%", label: "Ancora manuali" },
               { value: "-30%", label: "Sprechi riducibili" },
             ].map((s) => (
-              <div key={s.label} className="text-center">
+              <motion.div key={s.label} variants={fadeUp} className="text-center">
                 <div className="text-2xl md:text-3xl font-bold text-primary">{s.value}</div>
                 <div className="text-xs md:text-sm">{s.label}</div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* FEATURES */}
