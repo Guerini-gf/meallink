@@ -173,22 +173,22 @@ const Landing = () => {
       {/* HOW IT WORKS */}
       <section id="how" className="py-20 md:py-28 bg-muted">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeUp} className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Semplicissimo da usare
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto">
               Quattro passaggi per digitalizzare la mensa.
             </p>
-          </div>
-          <div className="grid md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+          </motion.div>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={staggerContainer} className="grid md:grid-cols-4 gap-8 max-w-4xl mx-auto">
             {[
               { step: "01", icon: Utensils, title: "Lo Chef crea il menù", desc: "Pubblica il menù del giorno con pochi click" },
               { step: "02", icon: Smartphone, title: "Il dipendente ordina", desc: "Sceglie i piatti dallo smartphone prima del pranzo" },
               { step: "03", icon: BarChart3, title: "Lo Chef prepara", desc: "Vede i conteggi esatti e prepara senza sprechi" },
               { step: "04", icon: ScanLine, title: "Ritiro con badge", desc: "Scansione rapida del badge per confermare il pasto" },
             ].map((s, i) => (
-              <div key={s.step} className="text-center relative">
+              <motion.div key={s.step} variants={fadeUp} className="text-center relative">
                 {i < 3 && (
                   <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-primary/20" />
                 )}
@@ -198,9 +198,9 @@ const Landing = () => {
                 <s.icon className="h-8 w-8 text-primary mx-auto mb-3" />
                 <h3 className="font-semibold text-foreground mb-1">{s.title}</h3>
                 <p className="text-sm text-muted-foreground">{s.desc}</p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
