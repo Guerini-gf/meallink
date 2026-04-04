@@ -242,8 +242,9 @@ const Landing = () => {
                 highlight: false,
               },
             ].map((plan) => (
-              <div
+              <motion.div
                 key={plan.name}
+                variants={fadeUp}
                 className={`rounded-2xl p-8 flex flex-col ${
                   plan.highlight
                     ? "bg-primary text-primary-foreground ring-2 ring-primary shadow-xl shadow-primary/20 scale-[1.03]"
@@ -285,9 +286,9 @@ const Landing = () => {
                     Inizia Ora
                   </Button>
                 </Link>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
