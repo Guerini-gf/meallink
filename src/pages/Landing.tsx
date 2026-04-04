@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import logoImage from "@/assets/logo.jpg";
+import { motion } from "framer-motion";
 import {
   Utensils,
   Smartphone,
@@ -19,6 +20,16 @@ import {
   Zap,
   TrendingUp,
 } from "lucide-react";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
 
 const Landing = () => {
   const navigate = useNavigate();
