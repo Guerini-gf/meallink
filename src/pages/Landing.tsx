@@ -64,32 +64,32 @@ const Landing = () => {
       </nav>
 
       {/* HERO */}
-      <section className="pt-32 pb-20 md:pt-44 md:pb-32 relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
+      <section className="pt-32 pb-20 md:pt-44 md:pb-32 relative bg-gradient-to-br from-primary via-primary/85 to-accent/70 text-primary-foreground">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--secondary)/0.15),transparent_60%)]" />
         <div className="container mx-auto px-4 relative">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-foreground/15 text-primary-foreground text-sm font-medium mb-8">
               <Zap className="h-4 w-4" />
               La mensa aziendale diventa smart
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.1] mb-6">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-primary-foreground leading-[1.1] mb-6">
               Digitalizza la tua
-              <span className="text-primary block">mensa aziendale</span>
+              <span className="text-secondary block">mensa aziendale</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-10 leading-relaxed">
               Ordini digitali, gestione allergeni, statistiche in tempo reale e zero sprechi.
               MealLink è la piattaforma SaaS che rivoluziona la ristorazione collettiva.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/auth">
-                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-base px-8 h-12 shadow-lg shadow-primary/25">
+                <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-8 h-12 shadow-lg shadow-secondary/25">
                   Prova Gratuita <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Button
                 size="lg"
                 variant="outline"
-                className="text-base px-8 h-12"
+                className="text-base px-8 h-12 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
                 onClick={() => scrollTo("how")}
               >
                 Scopri come funziona
@@ -97,7 +97,7 @@ const Landing = () => {
             </div>
           </div>
           <div className="flex justify-center mt-16">
-            <button onClick={() => scrollTo("features")} className="animate-bounce text-muted-foreground">
+            <button onClick={() => scrollTo("features")} className="animate-bounce text-primary-foreground/60">
               <ChevronDown className="h-6 w-6" />
             </button>
           </div>
@@ -307,7 +307,7 @@ const Landing = () => {
                 </div>
               ))}
             </div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
               <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-8 h-12">
                 Richiedi il Pitch Deck
               </Button>
@@ -316,6 +316,13 @@ const Landing = () => {
                   Prova la Demo
                 </Button>
               </Link>
+            </div>
+            <div className="pt-8 border-t border-background/10">
+              <p className="text-sm text-background/60 mb-2">Contatto diretto</p>
+              <p className="text-lg font-semibold">Guerini Gianfelice</p>
+              <a href="tel:+393357109529" className="text-secondary hover:text-secondary/80 transition-colors font-medium">
+                Tel +39 335 710 9529
+              </a>
             </div>
           </div>
         </div>
@@ -330,11 +337,17 @@ const Landing = () => {
               <span className="font-semibold text-foreground">MealLink</span>
               <span className="text-sm text-muted-foreground">by SOFTTHECHEFS</span>
             </div>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <button onClick={() => scrollTo("features")} className="hover:text-primary transition-colors">Funzionalità</button>
-              <button onClick={() => scrollTo("pricing")} className="hover:text-primary transition-colors">Prezzi</button>
-              <Link to="/install" className="hover:text-primary transition-colors">Installa App</Link>
-              <Link to="/auth" className="hover:text-primary transition-colors">Accedi</Link>
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-6">
+                <button onClick={() => scrollTo("features")} className="hover:text-primary transition-colors">Funzionalità</button>
+                <button onClick={() => scrollTo("pricing")} className="hover:text-primary transition-colors">Prezzi</button>
+                <Link to="/install" className="hover:text-primary transition-colors">Installa App</Link>
+                <Link to="/auth" className="hover:text-primary transition-colors">Accedi</Link>
+              </div>
+              <span className="hidden md:inline text-border">|</span>
+              <a href="tel:+393357109529" className="hover:text-primary transition-colors">
+                Guerini Gianfelice — +39 335 710 9529
+              </a>
             </div>
             <p className="text-xs text-muted-foreground">
               © 2026 SOFTTHECHEFS. Tutti i diritti riservati.
