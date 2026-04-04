@@ -68,15 +68,15 @@ const Landing = () => {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--secondary)/0.15),transparent_60%)]" />
         <div className="container mx-auto px-4 relative">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-foreground/15 text-primary-foreground text-sm font-medium mb-8">
               <Zap className="h-4 w-4" />
               La mensa aziendale diventa smart
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.1] mb-6">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-primary-foreground leading-[1.1] mb-6">
               Digitalizza la tua
-              <span className="text-primary block">mensa aziendale</span>
+              <span className="text-secondary block">mensa aziendale</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-10 leading-relaxed">
               Ordini digitali, gestione allergeni, statistiche in tempo reale e zero sprechi.
               MealLink è la piattaforma SaaS che rivoluziona la ristorazione collettiva.
             </p>
