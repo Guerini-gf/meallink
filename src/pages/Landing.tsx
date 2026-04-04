@@ -295,19 +295,19 @@ const Landing = () => {
       {/* INVESTORS */}
       <section id="investors" className="py-20 md:py-28 bg-foreground text-background">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-background/10 text-background/90 text-sm font-medium mb-8">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={staggerContainer} className="max-w-3xl mx-auto text-center">
+            <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-background/10 text-background/90 text-sm font-medium mb-8">
               <TrendingUp className="h-4 w-4" />
               Opportunità di investimento
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            </motion.div>
+            <motion.h2 variants={fadeUp} className="text-3xl md:text-5xl font-bold mb-6">
               Investi nel futuro della<br />ristorazione collettiva
-            </h2>
-            <p className="text-background/70 text-lg mb-12 leading-relaxed">
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-background/70 text-lg mb-12 leading-relaxed">
               MealLink affronta un mercato da €2.5 miliardi in Italia con il 70% delle mense
               ancora gestite manualmente. Il nostro MVP è già funzionante e pronto per la scala.
-            </p>
-            <div className="grid sm:grid-cols-3 gap-6 mb-12">
+            </motion.p>
+            <motion.div variants={fadeUp} className="grid sm:grid-cols-3 gap-6 mb-12">
               {[
                 { icon: Rocket, title: "MVP Pronto", desc: "Prodotto funzionante e testato sul campo" },
                 { icon: Users, title: "Team Dedicato", desc: "Competenze food-tech e sviluppo software" },
@@ -319,8 +319,8 @@ const Landing = () => {
                   <p className="text-sm text-background/60">{item.desc}</p>
                 </div>
               ))}
-            </div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+            </motion.div>
+            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
               <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-8 h-12">
                 Richiedi il Pitch Deck
               </Button>
@@ -329,15 +329,15 @@ const Landing = () => {
                   Prova la Demo
                 </Button>
               </Link>
-            </div>
-            <div className="pt-8 border-t border-background/10">
+            </motion.div>
+            <motion.div variants={fadeUp} className="pt-8 border-t border-background/10">
               <p className="text-sm text-background/60 mb-2">Contatto diretto</p>
               <p className="text-lg font-semibold">Guerini Gianfelice</p>
               <a href="tel:+393357109529" className="text-secondary hover:text-secondary/80 transition-colors font-medium">
                 Tel +39 335 710 9529
               </a>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
