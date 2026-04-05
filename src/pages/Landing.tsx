@@ -100,7 +100,7 @@ const Landing = () => {
               <Button
                 size="lg"
                 variant="outline"
-                className="text-base px-8 h-12 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
+                className="text-base px-8 h-12 border-2 border-primary-foreground/50 text-primary-foreground bg-primary-foreground/10 hover:bg-primary-foreground/20"
                 onClick={() => scrollTo("how")}
               >
                 Scopri come funziona
