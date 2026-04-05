@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import logoImage from "@/assets/logo.jpg";
+import dashboardMockup from "@/assets/dashboard-mockup.jpg";
 import { motion } from "framer-motion";
 import {
   Utensils,
