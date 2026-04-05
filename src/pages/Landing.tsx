@@ -108,7 +108,31 @@ const Landing = () => {
               </Button>
             </motion.div>
           </motion.div>
-          <div className="flex justify-center mt-16">
+          <motion.div
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+            className="mt-16 max-w-4xl mx-auto"
+          >
+            <div className="rounded-xl overflow-hidden shadow-2xl shadow-black/30 border border-primary-foreground/10 bg-background/5">
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-foreground/80 backdrop-blur">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-400" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                  <div className="w-3 h-3 rounded-full bg-green-400" />
+                </div>
+                <span className="text-xs text-background/50 ml-2 font-mono">meallink.app/dashboard</span>
+              </div>
+              <img
+                src={dashboardMockup}
+                alt="MealLink Dashboard - Gestione menu e statistiche ordini"
+                className="w-full h-auto"
+                width={1280}
+                height={800}
+              />
+            </div>
+          </motion.div>
+          <div className="flex justify-center mt-10">
             <button onClick={() => scrollTo("features")} className="animate-bounce text-primary-foreground/60">
               <ChevronDown className="h-6 w-6" />
             </button>
