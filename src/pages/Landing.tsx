@@ -64,6 +64,7 @@ const Landing = () => {
             <button onClick={() => scrollTo("features")} className="hover:text-primary transition-colors">Funzionalità</button>
             <button onClick={() => scrollTo("how")} className="hover:text-primary transition-colors">Come Funziona</button>
             <button onClick={() => scrollTo("pricing")} className="hover:text-primary transition-colors">Prezzi</button>
+            <button onClick={() => scrollTo("testimonials")} className="hover:text-primary transition-colors">Case Study</button>
             <button onClick={() => scrollTo("investors")} className="hover:text-primary transition-colors">Investitori</button>
           </div>
           <div className="flex items-center gap-3">
