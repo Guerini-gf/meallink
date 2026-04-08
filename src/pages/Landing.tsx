@@ -24,6 +24,7 @@ import {
   Building2,
   Timer,
   Leaf,
+  Download,
 } from "lucide-react";
 
 const fadeUp = {
