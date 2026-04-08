@@ -24,6 +24,7 @@ import {
   Building2,
   Timer,
   Leaf,
+  Download,
 } from "lucide-react";
 
 const fadeUp = {
@@ -452,9 +453,11 @@ const Landing = () => {
               ))}
             </motion.div>
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-8 h-12">
-                Richiedi il Pitch Deck
-              </Button>
+              <a href="/MealLink_PitchDeck.pdf" download="MealLink_PitchDeck.pdf">
+                <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base px-8 h-12">
+                  <Download className="mr-2 h-5 w-5" /> Scarica il Pitch Deck
+                </Button>
+              </a>
               <Link to="/auth">
                 <Button size="lg" variant="outline" className="text-base px-8 h-12 border-background/20 text-background hover:bg-background/10">
                   Prova la Demo
