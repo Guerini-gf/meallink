@@ -322,6 +322,107 @@ const Landing = () => {
         </div>
       </section>
 
+
+      {/* TESTIMONIALS & CASE STUDIES */}
+      <section id="testimonials" className="py-20 md:py-28 bg-muted">
+        <div className="container mx-auto px-4">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeUp} className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+              <Quote className="h-4 w-4" />
+              Storie di successo
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Chi usa MealLink, ne parla così
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Risultati concreti dalle aziende che hanno già digitalizzato la loro mensa.
+            </p>
+          </motion.div>
+
+          {/* Testimonials */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.1 }} variants={staggerContainer} className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16">
+            {[
+              {
+                quote: "Da quando usiamo MealLink, gli sprechi alimentari si sono ridotti del 35%. Il nostro chef finalmente sa esattamente quanti piatti preparare.",
+                author: "Marco Bianchi",
+                role: "HR Director",
+                company: "TechVenture Srl",
+                employees: "220 dipendenti",
+              },
+              {
+                quote: "I nostri dipendenti adorano poter ordinare dal telefono. Il tasso di soddisfazione della mensa è salito dal 62% al 91% in tre mesi.",
+                author: "Laura Rossi",
+                role: "Facility Manager",
+                company: "Industrie Meccaniche Padane",
+                employees: "480 dipendenti",
+              },
+              {
+                quote: "La gestione degli allergeni era un incubo. Con MealLink abbiamo zero incidenti e piena conformità normativa. Lo consiglio a tutti.",
+                author: "Chef Antonio Ferrara",
+                role: "Executive Chef",
+                company: "Mensa Universitaria di Bologna",
+                employees: "1.200 pasti/giorno",
+              },
+            ].map((t) => (
+              <motion.div
+                key={t.author}
+                variants={fadeUp}
+                className="p-6 rounded-2xl bg-card border border-border flex flex-col"
+              >
+                <Quote className="h-8 w-8 text-primary/30 mb-4 flex-shrink-0" />
+                <p className="text-sm text-foreground leading-relaxed mb-6 flex-1 italic">
+                  "{t.quote}"
+                </p>
+                <div className="border-t border-border pt-4">
+                  <p className="font-semibold text-foreground text-sm">{t.author}</p>
+                  <p className="text-xs text-muted-foreground">{t.role}</p>
+                  <p className="text-xs text-primary font-medium mt-1">{t.company} · {t.employees}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Case Study Highlight */}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeUp} className="max-w-4xl mx-auto">
+            <div className="rounded-2xl bg-card border border-border overflow-hidden">
+              <div className="p-2 bg-primary/5 border-b border-border">
+                <span className="text-xs font-semibold uppercase tracking-wider text-primary px-3">📊 Case Study</span>
+              </div>
+              <div className="p-8 md:p-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Building2 className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground">Industrie Meccaniche Padane</h3>
+                    <p className="text-sm text-muted-foreground">480 dipendenti · Sede di Brescia · Piano Professional</p>
+                  </div>
+                </div>
+                <p className="text-muted-foreground mb-8 leading-relaxed">
+                  Prima di MealLink, la mensa di IMP gestiva 480 pasti al giorno con fogli Excel e ordini cartacei.
+                  Lo chef sovrastimava le porzioni del 25%, con conseguenti sprechi alimentari per oltre €3.000/mese.
+                  I dipendenti si lamentavano della mancanza di scelta e dei tempi di attesa.
+                </p>
+                <div className="grid sm:grid-cols-3 gap-6">
+                  {[
+                    { icon: Leaf, value: "-35%", label: "Sprechi alimentari", desc: "Da €3.000 a €1.950/mese risparmiati" },
+                    { icon: Timer, value: "3 min", label: "Tempo medio ordine", desc: "Prima era 12 min in coda" },
+                    { icon: TrendingUp, value: "+29%", label: "Soddisfazione", desc: "Da 62% a 91% di gradimento" },
+                  ].map((stat) => (
+                    <div key={stat.label} className="text-center p-4 rounded-xl bg-muted">
+                      <stat.icon className="h-6 w-6 text-primary mx-auto mb-2" />
+                      <div className="text-3xl font-bold text-primary mb-1">{stat.value}</div>
+                      <div className="text-sm font-semibold text-foreground">{stat.label}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{stat.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* INVESTORS */}
       <section id="investors" className="py-20 md:py-28 bg-foreground text-background">
         <div className="container mx-auto px-4">
