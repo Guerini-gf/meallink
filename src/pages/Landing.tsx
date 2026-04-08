@@ -20,6 +20,10 @@ import {
   Star,
   Zap,
   TrendingUp,
+  Quote,
+  Building2,
+  Timer,
+  Leaf,
 } from "lucide-react";
 
 const fadeUp = {
