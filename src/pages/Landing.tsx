@@ -25,6 +25,8 @@ import {
   Timer,
   Leaf,
   Download,
+  Send,
+  Mail,
 } from "lucide-react";
 
 const fadeUp = {
