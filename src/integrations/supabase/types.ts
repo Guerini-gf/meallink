@@ -195,6 +195,36 @@ export type Database = {
           },
         ]
       }
+      investor_leads: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          message: string | null
+          phone: string | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          message?: string | null
+          phone?: string | null
+        }
+        Relationships: []
+      }
       meal_orders: {
         Row: {
           created_at: string | null
