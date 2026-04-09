@@ -66,7 +66,8 @@ const Landing = () => {
             <button onClick={() => scrollTo("how")} className="hover:text-primary transition-colors">Come Funziona</button>
             <button onClick={() => scrollTo("pricing")} className="hover:text-primary transition-colors">Prezzi</button>
             <button onClick={() => scrollTo("testimonials")} className="hover:text-primary transition-colors">Case Study</button>
-            <button onClick={() => scrollTo("investors")} className="hover:text-primary transition-colors">Investitori</button>
+             <button onClick={() => scrollTo("investors")} className="hover:text-primary transition-colors">Investitori</button>
+             <button onClick={() => scrollTo("faq")} className="hover:text-primary transition-colors">FAQ</button>
           </div>
           <div className="flex items-center gap-3">
             <Link to="/auth">
@@ -471,6 +472,64 @@ const Landing = () => {
                 Tel +39 335 710 9529
               </a>
             </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="py-24 bg-muted/50">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-16">
+            <motion.h2 variants={fadeUp} className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
+              Domande Frequenti
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-lg text-muted-foreground">
+              Risposte alle domande più comuni da parte di investitori e potenziali clienti
+            </motion.p>
+          </motion.div>
+          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-4">
+            {[
+              {
+                q: "Qual è il modello di business di MealLink?",
+                a: "MealLink opera con un modello SaaS in abbonamento mensile. Offriamo tre piani (Base, Professional, Enterprise) scalabili in base al numero di dipendenti e funzionalità richieste, con ricavi ricorrenti prevedibili."
+              },
+              {
+                q: "Qual è la dimensione del mercato?",
+                a: "Il mercato italiano delle mense aziendali vale circa €6.5 miliardi. Il nostro SAM (Serviceable Addressable Market) è di €180M, focalizzato su PMI con 50-500 dipendenti che ancora gestiscono le mense manualmente."
+              },
+              {
+                q: "Cosa differenzia MealLink dalla concorrenza?",
+                a: "MealLink è l'unica piattaforma che combina gestione menu, prenotazioni, scansione badge, analisi sprechi e notifiche push in un'unica PWA installabile. I competitor offrono solo soluzioni parziali o richiedono hardware dedicato costoso."
+              },
+              {
+                q: "A che punto è lo sviluppo del prodotto?",
+                a: "Il nostro MVP è completamente funzionante e testato sul campo. Include gestione menu, ordinazioni digitali, scansione badge NFC/QR, dashboard analytics e sistema di notifiche push."
+              },
+              {
+                q: "Quali sono le metriche chiave dal pilot?",
+                a: "Nel nostro caso studio con Industrie Meccaniche Padane abbiamo registrato: -35% di sprechi alimentari, tempo medio di ordinazione di 3 minuti, e +29% di soddisfazione dei dipendenti."
+              },
+              {
+                q: "Qual è la roadmap per i prossimi 12 mesi?",
+                a: "Nei prossimi 12 mesi puntiamo a raggiungere 25+ clienti attivi, integrare AI per la previsione della domanda, e lanciare un marketplace fornitori. Il break-even è previsto a 18 mesi dal seed round."
+              },
+              {
+                q: "Come viene utilizzato il finanziamento seed?",
+                a: "Il round seed di €250K sarà allocato: 40% sviluppo prodotto (AI e integrazioni), 35% vendite e marketing (team commerciale e acquisizione clienti), 25% operations e infrastruttura cloud."
+              },
+            ].map((faq, i) => (
+              <motion.details
+                key={i}
+                variants={fadeUp}
+                className="group rounded-xl border border-border bg-background p-6 cursor-pointer transition-shadow hover:shadow-md"
+              >
+                <summary className="flex items-center justify-between font-semibold text-foreground list-none">
+                  {faq.q}
+                  <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-open:rotate-180" />
+                </summary>
+                <p className="mt-4 text-muted-foreground leading-relaxed">{faq.a}</p>
+              </motion.details>
+            ))}
           </motion.div>
         </div>
       </section>
