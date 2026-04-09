@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -38,6 +38,41 @@ const staggerContainer = {
 };
 
 const Landing = () => {
+  const [leadForm, setLeadForm] = useState({ full_name: "", email: "", company: "", phone: "", message: "" });
+  const [leadSubmitting, setLeadSubmitting] = useState(false);
+  const [leadSuccess, setLeadSuccess] = useState(false);
+  const [leadError, setLeadError] = useState("");
+
+  const handleLeadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLeadError("");
+    if (!leadForm.full_name.trim() || !leadForm.email.trim()) {
+      setLeadError("Nome e email sono obbligatori.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(leadForm.email)) {
+      setLeadError("Email non valida.");
+      return;
+    }
+    setLeadSubmitting(true);
+    try {
+      const { error } = await supabase.from("investor_leads").insert({
+        full_name: leadForm.full_name.trim(),
+        email: leadForm.email.trim().toLowerCase(),
+        company: leadForm.company.trim() || null,
+        phone: leadForm.phone.trim() || null,
+        message: leadForm.message.trim() || null,
+      });
+      if (error) throw error;
+      setLeadSuccess(true);
+      setLeadForm({ full_name: "", email: "", company: "", phone: "", message: "" });
+    } catch {
+      setLeadError("Errore nell'invio. Riprova più tardi.");
+    } finally {
+      setLeadSubmitting(false);
+    }
+  };
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -465,7 +500,77 @@ const Landing = () => {
                 </Button>
               </Link>
             </motion.div>
-            <motion.div variants={fadeUp} className="pt-8 border-t border-background/10">
+            {/* CONTACT FORM */}
+            <motion.div variants={fadeUp} className="pt-10 border-t border-background/10">
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <Mail className="h-5 w-5 text-secondary" />
+                <h3 className="text-xl font-semibold">Contattaci direttamente</h3>
+              </div>
+              {leadSuccess ? (
+                <div className="bg-secondary/20 border border-secondary/30 rounded-xl p-6 text-center">
+                  <Check className="h-8 w-8 text-secondary mx-auto mb-3" />
+                  <p className="font-semibold text-lg mb-1">Messaggio inviato!</p>
+                  <p className="text-background/70 text-sm">Ti ricontatteremo al più presto.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleLeadSubmit} className="grid sm:grid-cols-2 gap-4 text-left max-w-xl mx-auto">
+                  <input
+                    type="text"
+                    placeholder="Nome e Cognome *"
+                    value={leadForm.full_name}
+                    onChange={(e) => setLeadForm(p => ({ ...p, full_name: e.target.value }))}
+                    className="col-span-1 rounded-lg bg-background/10 border border-background/20 px-4 py-3 text-background placeholder:text-background/40 focus:outline-none focus:ring-2 focus:ring-secondary/50"
+                    maxLength={100}
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email *"
+                    value={leadForm.email}
+                    onChange={(e) => setLeadForm(p => ({ ...p, email: e.target.value }))}
+                    className="col-span-1 rounded-lg bg-background/10 border border-background/20 px-4 py-3 text-background placeholder:text-background/40 focus:outline-none focus:ring-2 focus:ring-secondary/50"
+                    maxLength={255}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Azienda"
+                    value={leadForm.company}
+                    onChange={(e) => setLeadForm(p => ({ ...p, company: e.target.value }))}
+                    className="col-span-1 rounded-lg bg-background/10 border border-background/20 px-4 py-3 text-background placeholder:text-background/40 focus:outline-none focus:ring-2 focus:ring-secondary/50"
+                    maxLength={100}
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Telefono"
+                    value={leadForm.phone}
+                    onChange={(e) => setLeadForm(p => ({ ...p, phone: e.target.value }))}
+                    className="col-span-1 rounded-lg bg-background/10 border border-background/20 px-4 py-3 text-background placeholder:text-background/40 focus:outline-none focus:ring-2 focus:ring-secondary/50"
+                    maxLength={20}
+                  />
+                  <textarea
+                    placeholder="Messaggio (opzionale)"
+                    value={leadForm.message}
+                    onChange={(e) => setLeadForm(p => ({ ...p, message: e.target.value }))}
+                    rows={3}
+                    className="sm:col-span-2 rounded-lg bg-background/10 border border-background/20 px-4 py-3 text-background placeholder:text-background/40 focus:outline-none focus:ring-2 focus:ring-secondary/50 resize-none"
+                    maxLength={500}
+                  />
+                  {leadError && <p className="sm:col-span-2 text-red-400 text-sm">{leadError}</p>}
+                  <div className="sm:col-span-2">
+                    <Button
+                      type="submit"
+                      size="lg"
+                      disabled={leadSubmitting}
+                      className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 text-base h-12"
+                    >
+                      <Send className="mr-2 h-4 w-4" />
+                      {leadSubmitting ? "Invio in corso..." : "Invia messaggio"}
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </motion.div>
+
+            <motion.div variants={fadeUp} className="pt-8 border-t border-background/10 mt-10">
               <p className="text-sm text-background/60 mb-2">Contatto diretto</p>
               <p className="text-lg font-semibold">Guerini Gianfelice</p>
               <a href="tel:+393357109529" className="text-secondary hover:text-secondary/80 transition-colors font-medium">
