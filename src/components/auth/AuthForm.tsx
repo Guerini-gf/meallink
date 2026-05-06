@@ -77,13 +77,10 @@ export const AuthForm = () => {
             return;
           }
 
-          const { data: canteen } = await supabase
-            .from('canteens')
-            .select('id')
-            .eq('canteen_code', validatedData.canteenCode)
-            .maybeSingle();
+          const { data: codeOk } = await supabase
+            .rpc('canteen_code_exists', { _canteen_code: validatedData.canteenCode! });
 
-          if (!canteen) {
+          if (!codeOk) {
             toast.error("Codice mensa non valido");
             setLoading(false);
             return;
