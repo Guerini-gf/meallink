@@ -21,6 +21,7 @@ export const ScannerInterface = () => {
   const [todayMenu, setTodayMenu] = useState<MenuData | null>(null);
   const [canteenInfo, setCanteenInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [noCanteen, setNoCanteen] = useState(false);
 
   useEffect(() => {
     loadTodayMenu();
@@ -31,19 +32,20 @@ export const ScannerInterface = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("canteen_id")
-        .eq("id", user.id)
-        .single();
+      const { data: canteenId, error: rpcError } = await supabase
+        .rpc("get_user_canteen", { _user_id: user.id });
 
-      if (!profile?.canteen_id) return;
+      if (rpcError || !canteenId) {
+        setNoCanteen(true);
+        setLoading(false);
+        return;
+      }
 
       // Load canteen info
       const { data: canteen } = await supabase
         .from("canteens")
         .select("name, code")
-        .eq("id", profile.canteen_id)
+        .eq("id", canteenId)
         .single();
 
       setCanteenInfo(canteen);
@@ -53,7 +55,7 @@ export const ScannerInterface = () => {
       const { data: menu } = await supabase
         .from("daily_menus")
         .select("id, menu_date, meal_type")
-        .eq("canteen_id", profile.canteen_id)
+        .eq("canteen_id", canteenId)
         .eq("menu_date", today)
         .eq("meal_type", "lunch")
         .single();
@@ -95,6 +97,23 @@ export const ScannerInterface = () => {
       <div className="flex items-center justify-center py-12">
         <div className="text-xl">Caricamento...</div>
       </div>
+    );
+  }
+
+  if (noCanteen) {
+    return (
+      <Card className="shadow-medium border-2 border-destructive">
+        <CardContent className="pt-6">
+          <div className="text-center py-12 space-y-2">
+            <p className="text-xl font-semibold text-destructive">
+              Nessuna mensa associata al tuo badge
+            </p>
+            <p className="text-muted-foreground">
+              Non è stato possibile recuperare i dati della mensa. Verifica che il tuo account sia correttamente collegato a una mensa o contatta lo Chef.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
