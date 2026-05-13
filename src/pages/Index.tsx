@@ -9,14 +9,20 @@ const Index = () => {
 
   useEffect(() => {
     const check = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate("/dashboard");
-      } else {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          navigate("/dashboard");
+        } else {
+          setChecking(false);
+        }
+      } catch {
         setChecking(false);
       }
     };
     check();
+    const timer = setTimeout(() => setChecking(false), 3000);
+    return () => clearTimeout(timer);
   }, [navigate]);
 
   if (checking) {
