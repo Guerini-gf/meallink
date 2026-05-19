@@ -5,13 +5,18 @@ export const useUserRole = () => {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 4000);
+    const timer = setTimeout(() => {
+      setError("Timeout durante il caricamento dei dati utente. Controlla la connessione e riprova.");
+      setLoading(false);
+    }, 5000);
 
     const loadUserData = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError) throw userError;
         
         if (!user) {
           setLoading(false);
@@ -40,8 +45,9 @@ export const useUserRole = () => {
         if (roleData) {
           setUserRole(roleData.role);
         }
-      } catch (error) {
-        console.error("Error loading user data:", error);
+      } catch (err: any) {
+        console.error("Error loading user data:", err);
+        setError(err?.message || "Impossibile caricare i dati utente. Riprova.");
       } finally {
         setLoading(false);
         clearTimeout(timer);
@@ -52,5 +58,5 @@ export const useUserRole = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  return { userRole, userName, loading };
+  return { userRole, userName, loading, error };
 };
