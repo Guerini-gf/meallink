@@ -10,7 +10,7 @@ import { ChefStatistics } from "@/components/dashboard/ChefStatistics";
 import { InvestorLeads } from "@/components/dashboard/InvestorLeads";
 import { EmployeeManager } from "@/components/employees/EmployeeManager";
 import { PWAInstallBanner } from "@/components/pwa/PWAInstallBanner";
-import { LogOut } from "lucide-react";
+import { LogOut, ChefHat } from "lucide-react";
 import { toast } from "sonner";
 import logoImage from "@/assets/logo.jpg";
 import { useUserRole } from "@/hooks/use-user-role";
@@ -66,14 +66,29 @@ const Dashboard = () => {
                 </p>
               </div>
             </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Esci
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                asChild
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+              >
+                <a
+                  href="https://mensa-smart-flow.lovable.app/auth"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ChefHat className="mr-2 h-4 w-4" />
+                  Accesso Mensa HACCP
+                </a>
+              </Button>
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Esci
+              </Button>
+            </div>
           </div>
         </div>
       </header>
