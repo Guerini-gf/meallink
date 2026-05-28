@@ -8,6 +8,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
+import PreviewTokenGuard from "./components/PreviewTokenGuard";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +17,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <PreviewTokenGuard />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
