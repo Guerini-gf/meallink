@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, Smartphone, Monitor, CheckCircle2, Share, MoreVertical, Plus, ChefHat } from "lucide-react";
+import { Download, Smartphone, Monitor, CheckCircle2, Share, MoreVertical, Plus, ChefHat, QrCode } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { useNavigate } from "react-router-dom";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -102,6 +103,43 @@ const Install = () => {
             v1.0 • PWA
           </Badge>
         </div>
+
+        {/* Quick Install & QR Code */}
+        <Card className="mb-6 border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <QrCode className="w-5 h-5" />
+              Installa o condividi
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Install Button */}
+            {deferredPrompt ? (
+              <Button 
+                onClick={handleInstallClick} 
+                className="w-full" 
+                size="lg"
+              >
+                <Download className="w-5 h-5 mr-2" />
+                Installa PWA
+              </Button>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center">
+                Il tuo browser non supporta l'installazione automatica. Segui le istruzioni qui sotto.
+              </p>
+            )}
+
+            {/* QR Code */}
+            <div className="flex flex-col items-center gap-3">
+              <div className="p-4 bg-white rounded-xl shadow-sm">
+                <QRCodeSVG value="https://meallink.lovable.app/" size={200} />
+              </div>
+              <p className="text-sm text-muted-foreground text-center">
+                Scansiona per installare su un altro dispositivo
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Features */}
         <Card className="mb-6">
