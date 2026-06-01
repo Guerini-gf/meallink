@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, Smartphone, Monitor, CheckCircle2, Share, MoreVertical, Plus, ChefHat } from "lucide-react";
+import { Download, Smartphone, Monitor, CheckCircle2, Share, MoreVertical, Plus, ChefHat, QrCode } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { useNavigate } from "react-router-dom";
 
 interface BeforeInstallPromptEvent extends Event {
