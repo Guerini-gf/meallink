@@ -168,90 +168,73 @@ const Install = () => {
           </CardContent>
         </Card>
 
-        {/* Install Instructions */}
-        {isIOS ? (
-          <Card className="mb-6 border-primary/20 bg-primary/5">
-            <CardHeader>
-              <CardTitle className="text-lg">📱 Installa su iPhone/iPad</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <InstallStep 
-                number={1}
-                icon={<Share className="w-5 h-5" />}
-                text="Tocca il pulsante Condividi in Safari"
-              />
-              <InstallStep 
-                number={2}
-                icon={<Plus className="w-5 h-5" />}
-                text='Scorri e seleziona "Aggiungi a Home"'
-              />
-              <InstallStep 
-                number={3}
-                icon={<CheckCircle2 className="w-5 h-5" />}
-                text='Tocca "Aggiungi" in alto a destra'
-              />
-            </CardContent>
-          </Card>
-        ) : isAndroid ? (
-          <Card className="mb-6 border-primary/20 bg-primary/5">
-            <CardHeader>
-              <CardTitle className="text-lg">📱 Installa su Android</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {deferredPrompt ? (
-                <Button 
-                  onClick={handleInstallClick} 
-                  className="w-full" 
-                  size="lg"
-                >
-                  <Download className="w-5 h-5 mr-2" />
-                  Installa App
-                </Button>
-              ) : (
-                <>
-                  <InstallStep 
-                    number={1}
-                    icon={<MoreVertical className="w-5 h-5" />}
-                    text="Tocca il menu (⋮) del browser"
-                  />
-                  <InstallStep 
-                    number={2}
-                    icon={<Plus className="w-5 h-5" />}
-                    text='Seleziona "Installa app" o "Aggiungi a Home"'
-                  />
-                  <InstallStep 
-                    number={3}
-                    icon={<CheckCircle2 className="w-5 h-5" />}
-                    text='Conferma toccando "Installa"'
-                  />
-                </>
-              )}
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="mb-6 border-primary/20 bg-primary/5">
-            <CardHeader>
-              <CardTitle className="text-lg">💻 Installa su Desktop</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {deferredPrompt ? (
-                <Button 
-                  onClick={handleInstallClick} 
-                  className="w-full" 
-                  size="lg"
-                >
-                  <Download className="w-5 h-5 mr-2" />
-                  Installa App
-                </Button>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Cerca l'icona di installazione nella barra degli indirizzi del browser, 
-                  oppure accedi dal menu del browser.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        )}
+        {/* Install Instructions — iPhone/iPad */}
+        <Card className={`mb-4 ${isIOS ? "border-primary/40 bg-primary/5 ring-1 ring-primary/20" : "border-border"}`}>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Smartphone className="w-5 h-5 text-primary" />
+              Installa su iPhone / iPad
+              {isIOS && <Badge variant="default" className="ml-auto text-xs">Il tuo dispositivo</Badge>}
+            </CardTitle>
+            <CardDescription>
+              Usa Safari (iOS 11.3 o successivo)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <InstallStep 
+              number={1}
+              icon={<Share className="w-5 h-5" />}
+              text="Apri questa pagina in Safari e tocca il pulsante Condividi in basso"
+            />
+            <InstallStep 
+              number={2}
+              icon={<Plus className="w-5 h-5" />}
+              text='Scorri il menu e seleziona "Aggiungi a Home"'
+            />
+            <InstallStep 
+              number={3}
+              icon={<CheckCircle2 className="w-5 h-5" />}
+              text='Tocca "Aggiungi" in alto a destra per completare'
+            />
+            <p className="text-xs text-muted-foreground pt-2 border-t">
+              L'icona MealLink apparirà sulla schermata Home come un'app nativa.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Install Instructions — Android */}
+        <Card className={`mb-6 ${isAndroid ? "border-primary/40 bg-primary/5 ring-1 ring-primary/20" : "border-border"}`}>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Smartphone className="w-5 h-5 text-primary" />
+              Installa su Android
+              {isAndroid && <Badge variant="default" className="ml-auto text-xs">Il tuo dispositivo</Badge>}
+            </CardTitle>
+            <CardDescription>
+              Chrome, Edge o Samsung Internet
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <InstallStep 
+              number={1}
+              icon={<MoreVertical className="w-5 h-5" />}
+              text="Tocca il menu (⋮) in alto a destra nel browser"
+            />
+            <InstallStep 
+              number={2}
+              icon={<Download className="w-5 h-5" />}
+              text='Seleziona "Installa app" o "Aggiungi a schermata Home"'
+            />
+            <InstallStep 
+              number={3}
+              icon={<CheckCircle2 className="w-5 h-5" />}
+              text='Conferma toccando "Installa" nella finestra popup'
+            />
+            <p className="text-xs text-muted-foreground pt-2 border-t">
+              Puoi anche attendere il banner nativo di Chrome e toccare "Installa" direttamente.
+            </p>
+          </CardContent>
+        </Card>
 
         {/* Already installed notice */}
         {isInstalled && (
