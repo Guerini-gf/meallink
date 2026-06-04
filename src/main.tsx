@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { toast } from "sonner";
+import { registerPWA } from "./pwa/register";
 
 const formatReason = (reason: unknown): string => {
   if (!reason) return "Errore sconosciuto";
@@ -42,3 +43,5 @@ if (typeof window !== "undefined") {
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
+
+registerPWA();
