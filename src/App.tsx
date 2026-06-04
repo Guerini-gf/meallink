@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 import PreviewTokenGuard from "./components/PreviewTokenGuard";
+import OfflineIndicator from "./components/OfflineIndicator";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <PreviewTokenGuard />
+      <OfflineIndicator />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />

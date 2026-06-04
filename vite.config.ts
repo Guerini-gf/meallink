@@ -62,9 +62,18 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,jpg,png,svg,woff2}'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
+        navigateFallbackDenylist: [
+          /^\/~oauth/,
+          /^\/api\//,
+          /^\/sw\.js$/,
+          /^\/manifest\.webmanifest$/,
+          /\.[^/]+$/,
+        ],
         cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: ({ request }) => request.mode === 'navigate',
@@ -81,19 +90,26 @@ export default defineConfig(({ mode }) => ({
             handler: 'CacheFirst',
             options: {
               cacheName: 'static-assets',
-              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30, purgeOnQuotaError: true },
+              cacheableResponse: { statuses: [0, 200] },
             },
           },
           {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+            urlPattern: ({ url, request }) =>
+              request.method === 'GET' &&
+              /\.supabase\.co$/.test(url.hostname) &&
+              !url.pathname.startsWith('/auth/') &&
+              !url.pathname.startsWith('/realtime/'),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'supabase-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
+                maxAgeSeconds: 60 * 60 * 24 * 7,
+                purgeOnQuotaError: true,
               },
-              networkTimeoutSeconds: 10
+              networkTimeoutSeconds: 8,
+              cacheableResponse: { statuses: [0, 200] },
             }
           }
         ]
