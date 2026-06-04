@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, Smartphone, Monitor, CheckCircle2, Share, MoreVertical, Plus, ChefHat, QrCode } from "lucide-react";
+import { Download, Smartphone, Monitor, CheckCircle2, Share, MoreVertical, Plus, ChefHat, QrCode, RefreshCw } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -64,6 +65,45 @@ const Install = () => {
 
   const goToApp = () => {
     navigate('/');
+  };
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefreshCache = async () => {
+    if (refreshing) return;
+    const ok = window.confirm(
+      "Verranno svuotate tutte le cache offline dell'app e la pagina sarà ricaricata. Continuare?",
+    );
+    if (!ok) return;
+    setRefreshing(true);
+    try {
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+      if ("serviceWorker" in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(
+          regs.map(async (r) => {
+            try {
+              await r.update();
+            } catch {
+              /* ignore */
+            }
+          }),
+        );
+      }
+      toast.success("Cache svuotata. Ricarico…");
+      setTimeout(() => {
+        const url = new URL(window.location.href);
+        url.searchParams.set("_r", Date.now().toString());
+        window.location.replace(url.toString());
+      }, 600);
+    } catch (err) {
+      console.error("[cache refresh]", err);
+      toast.error("Impossibile aggiornare la cache");
+      setRefreshing(false);
+    }
   };
 
   if (isStandalone) {
@@ -136,6 +176,22 @@ const Install = () => {
               </div>
               <p className="text-sm text-muted-foreground text-center">
                 Scansiona per installare su un altro dispositivo
+              </p>
+            </div>
+
+            {/* Force cache refresh (useful for iOS Safari fallback testing) */}
+            <div className="pt-4 border-t space-y-2">
+              <Button
+                onClick={handleRefreshCache}
+                disabled={refreshing}
+                variant="outline"
+                className="w-full"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+                {refreshing ? "Aggiornamento…" : "Aggiorna cache ora"}
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                Svuota la cache offline e forza il refresh. Utile per verificare il fallback su iPhone Safari.
               </p>
             </div>
           </CardContent>
