@@ -217,10 +217,23 @@ const Install = () => {
                 className="w-full"
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
-                {refreshing ? "Aggiornamento…" : "Aggiorna cache ora"}
+                {refreshing ? "Aggiornamento…" : "Aggiorna cache asset (app)"}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                Svuota la cache offline e forza il refresh. Utile per verificare il fallback su iPhone Safari.
+                Svuota JS/CSS/immagini e ricarica. I dati restano in cache.
+              </p>
+
+              <Button
+                onClick={handleRefreshData}
+                disabled={refreshingData}
+                variant="outline"
+                className="w-full"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${refreshingData ? "animate-spin" : ""}`} />
+                {refreshingData ? "Aggiornamento…" : "Aggiorna dati (menu/prenotazioni)"}
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                Svuota solo la cache dei dati. Utile per testare il fallback offline su iPhone Safari senza ricaricare l'app.
               </p>
             </div>
           </CardContent>
