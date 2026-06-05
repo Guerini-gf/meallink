@@ -68,18 +68,23 @@ const Install = () => {
   };
 
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshingData, setRefreshingData] = useState(false);
 
   const handleRefreshCache = async () => {
     if (refreshing) return;
     const ok = window.confirm(
-      "Verranno svuotate tutte le cache offline dell'app e la pagina sarà ricaricata. Continuare?",
+      "Verranno svuotate le cache degli asset statici (JS/CSS/immagini) e la pagina sarà ricaricata. I dati (menu/prenotazioni) NON verranno toccati. Continuare?",
     );
     if (!ok) return;
     setRefreshing(true);
     try {
       if ("caches" in window) {
         const keys = await caches.keys();
-        await Promise.all(keys.map((k) => caches.delete(k)));
+        // Only asset/navigation caches — preserve supabase-cache (dati)
+        const assetKeys = keys.filter(
+          (k) => k !== "supabase-cache" && !k.includes("supabase"),
+        );
+        await Promise.all(assetKeys.map((k) => caches.delete(k)));
       }
       if ("serviceWorker" in navigator) {
         const regs = await navigator.serviceWorker.getRegistrations();
@@ -93,7 +98,7 @@ const Install = () => {
           }),
         );
       }
-      toast.success("Cache svuotata. Ricarico…");
+      toast.success("Cache asset svuotata. Ricarico…");
       setTimeout(() => {
         const url = new URL(window.location.href);
         url.searchParams.set("_r", Date.now().toString());
@@ -103,6 +108,30 @@ const Install = () => {
       console.error("[cache refresh]", err);
       toast.error("Impossibile aggiornare la cache");
       setRefreshing(false);
+    }
+  };
+
+  const handleRefreshData = async () => {
+    if (refreshingData) return;
+    const ok = window.confirm(
+      "Verranno svuotate solo le cache dei dati (menu, prenotazioni, API). Gli asset dell'app restano in cache. Continuare?",
+    );
+    if (!ok) return;
+    setRefreshingData(true);
+    try {
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        const dataKeys = keys.filter(
+          (k) => k === "supabase-cache" || k.includes("supabase") || k.includes("api"),
+        );
+        await Promise.all(dataKeys.map((k) => caches.delete(k)));
+      }
+      toast.success("Cache dati svuotata. I prossimi caricamenti useranno la rete.");
+    } catch (err) {
+      console.error("[data cache refresh]", err);
+      toast.error("Impossibile aggiornare la cache dati");
+    } finally {
+      setRefreshingData(false);
     }
   };
 
