@@ -194,6 +194,40 @@ const Install = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Phone testing quickstart */}
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
+              <div className="flex items-center gap-2 font-semibold text-sm">
+                <Wifi className="w-4 h-4 text-primary" />
+                Test rapido sul telefono (3 passi)
+              </div>
+              <ol className="list-decimal list-inside text-sm space-y-1 text-foreground/90">
+                <li>Apri sul telefono: <span className="font-mono text-xs break-all">{INSTALL_URL}</span></li>
+                <li>Segui le istruzioni qui sotto per iPhone o Android.</li>
+                <li>Apri l'app dalla schermata Home e accedi con le tue credenziali.</li>
+              </ol>
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <Button onClick={copyInstallLink} variant="outline" size="sm">
+                  <Copy className="w-4 h-4 mr-2" /> Copia link
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                >
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent("Installa MealLink sul telefono: " + INSTALL_URL)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Share className="w-4 h-4 mr-2" /> Invia via WhatsApp
+                  </a>
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Suggerimento: usa l'URL pubblicato (non l'anteprima). Su iPhone l'installazione funziona solo da Safari.
+              </p>
+            </div>
+
             {/* Install Button */}
             {deferredPrompt ? (
               <Button 
@@ -213,10 +247,10 @@ const Install = () => {
             {/* QR Code */}
             <div className="flex flex-col items-center gap-3">
               <div className="p-4 bg-white rounded-xl shadow-sm">
-                <QRCodeSVG value="https://meallink.lovable.app/" size={200} />
+                <QRCodeSVG value={INSTALL_URL} size={200} />
               </div>
               <p className="text-sm text-muted-foreground text-center">
-                Scansiona per installare su un altro dispositivo
+                Inquadra il QR con la fotocamera del telefono per aprire la pagina di installazione
               </p>
             </div>
 
