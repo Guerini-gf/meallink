@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -10,31 +10,14 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Calendar, Clock, UtensilsCrossed, CheckCircle2, AlertTriangle, User } from "lucide-react";
+import { Calendar, UtensilsCrossed, CheckCircle2, AlertTriangle, ChevronRight } from "lucide-react";
 import { AllergenManager } from "@/components/profile/AllergenManager";
 import { TableReservation } from "@/components/reservation/TableReservation";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
-interface Allergen {
-  id: string;
-  name: string;
-  icon: string | null;
-}
-
-interface Dish {
-  id: string;
-  name: string;
-  category: string;
-  allergens?: Allergen[];
-}
-
-interface MenuWithDishes {
-  id: string;
-  menu_date: string;
-  meal_type: string;
-  dishes: Dish[];
-  order_deadline?: string;
-}
-
+interface Allergen { id: string; name: string; icon: string | null; }
+interface Dish { id: string; name: string; category: string; allergens?: Allergen[]; }
+interface MenuWithDishes { id: string; menu_date: string; meal_type: string; dishes: Dish[]; order_deadline?: string; }
 interface ExistingOrder {
   id: string;
   selected_dishes: string[];
@@ -43,6 +26,15 @@ interface ExistingOrder {
   feedback: string | null;
   notes: string | null;
 }
+
+const CATEGORIES: { key: string; label: string }[] = [
+  { key: "primo", label: "Primo Piatto" },
+  { key: "secondo", label: "Secondo Piatto" },
+  { key: "contorno", label: "Contorno" },
+  { key: "aggiuntivo", label: "Piatto Aggiunto" },
+  { key: "richieste", label: "Piatto Richiesto" },
+  { key: "dessert", label: "Dessert" },
+];
 
 export const CustomerInterface = () => {
   const [todayMenu, setTodayMenu] = useState<MenuWithDishes | null>(null);
@@ -60,59 +52,35 @@ export const CustomerInterface = () => {
   const [userAllergens, setUserAllergens] = useState<string[]>([]);
   const [filterByAllergens, setFilterByAllergens] = useState(false);
 
-  useEffect(() => {
-    loadMenusAndOrders();
-  }, []);
+  useEffect(() => { loadMenusAndOrders(); }, []);
 
   const loadMenusAndOrders = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-
       const { data: profile } = await supabase
         .from("profiles")
-        .select("canteen_id, full_name, employee_number, badge_code")
+        .select("id, canteen_id, full_name, employee_number, badge_code")
         .eq("id", user.id)
         .maybeSingle();
-
       if (!profile?.canteen_id) return;
-      
       setUserProfile(profile);
 
-      // Load user allergens
       const { data: allergensData } = await supabase
-        .from("user_allergens")
-        .select("allergen_id")
-        .eq("user_id", user.id);
-      
+        .from("user_allergens").select("allergen_id").eq("user_id", user.id);
       setUserAllergens(allergensData?.map(a => a.allergen_id) || []);
 
-      // Load canteen info
       const { data: canteen } = await supabase
-        .from("canteens")
-        .select("name, code")
-        .eq("id", profile.canteen_id)
-        .maybeSingle();
-      
+        .from("canteens").select("name, code").eq("id", profile.canteen_id).maybeSingle();
       setCanteenInfo(canteen);
 
       const today = new Date().toISOString().split("T")[0];
       const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
-
-      // Load today's menu and order
       await loadMenuAndOrder(today, profile.canteen_id, user.id, true);
-      
-      // Load tomorrow's menu
       await loadMenuAndOrder(tomorrow, profile.canteen_id, user.id, false);
 
-      // Check if can still order (before 16:00)
       const now = new Date();
-      const currentHour = now.getHours();
-      const currentMinute = now.getMinutes();
-      const currentTime = currentHour * 60 + currentMinute;
-      const deadlineTime = 16 * 60; // 16:00
-      setCanOrder(currentTime < deadlineTime);
-
+      setCanOrder(now.getHours() * 60 + now.getMinutes() < 16 * 60);
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Errore nel caricamento dei dati");
@@ -121,123 +89,57 @@ export const CustomerInterface = () => {
     }
   };
 
-  const loadMenuAndOrder = async (
-    date: string, 
-    canteenId: string, 
-    userId: string, 
-    isToday: boolean
-  ) => {
-    // Load menu
+  const loadMenuAndOrder = async (date: string, canteenId: string, userId: string, isToday: boolean) => {
     const { data: menu } = await supabase
       .from("daily_menus")
       .select("id, menu_date, meal_type, order_deadline")
-      .eq("canteen_id", canteenId)
-      .eq("menu_date", date)
-      .eq("meal_type", "lunch")
-      .single();
-
+      .eq("canteen_id", canteenId).eq("menu_date", date).eq("meal_type", "lunch")
+      .maybeSingle();
     if (!menu) {
-      if (isToday) setTodayMenu(null);
-      else setTomorrowMenu(null);
+      if (isToday) setTodayMenu(null); else setTomorrowMenu(null);
       return;
     }
-
-    // Load dishes for this menu
     const { data: menuDishes } = await supabase
-      .from("menu_dishes")
-      .select("dish_id")
-      .eq("menu_id", menu.id);
-
-    if (menuDishes && menuDishes.length > 0) {
-      const dishIds = menuDishes.map(md => md.dish_id);
-      const { data: dishes } = await supabase
-        .from("dishes")
-        .select("*")
-        .in("id", dishIds);
-
-      // Load allergens for each dish
-      const dishesWithAllergens = await Promise.all(
-        (dishes || []).map(async (dish) => {
-          const { data: dishAllergens } = await supabase
-            .from("dish_allergens")
-            .select(`
-              allergens (
-                id,
-                name,
-                icon
-              )
-            `)
-            .eq("dish_id", dish.id);
-
-          return {
-            ...dish,
-            allergens: dishAllergens?.map(da => da.allergens).filter(Boolean) || [],
-          };
-        })
-      );
-
-      const menuWithDishes = {
-        ...menu,
-        dishes: dishesWithAllergens,
-      };
-
-      if (isToday) {
-        setTodayMenu(menuWithDishes);
-        
-        // Load today's order
-        const { data: order } = await supabase
-          .from("meal_orders")
-          .select("*")
-          .eq("user_id", userId)
-          .eq("menu_id", menu.id)
-          .single();
-
-        setTodayOrder(order);
-      } else {
-        setTomorrowMenu(menuWithDishes);
-        
-        // Load existing order for tomorrow if any
-        const { data: existingOrder } = await supabase
-          .from("meal_orders")
-          .select("*")
-          .eq("user_id", userId)
-          .eq("menu_id", menu.id)
-          .single();
-
-        if (existingOrder) {
-          setSelectedDishes(existingOrder.selected_dishes);
-          setIsTakeaway(existingOrder.is_takeaway || false);
-          setTakeawayTime(existingOrder.takeaway_time || "12:30");
-          setNotes(existingOrder.notes || "");
-          setFeedback(existingOrder.feedback || "");
-        }
+      .from("menu_dishes").select("dish_id").eq("menu_id", menu.id);
+    if (!menuDishes || menuDishes.length === 0) {
+      const empty = { ...menu, dishes: [] };
+      if (isToday) setTodayMenu(empty); else setTomorrowMenu(empty);
+      return;
+    }
+    const dishIds = menuDishes.map(md => md.dish_id);
+    const { data: dishes } = await supabase.from("dishes").select("*").in("id", dishIds);
+    const dishesWithAllergens = await Promise.all((dishes || []).map(async (dish) => {
+      const { data: da } = await supabase
+        .from("dish_allergens")
+        .select(`allergens ( id, name, icon )`).eq("dish_id", dish.id);
+      return { ...dish, allergens: da?.map(x => x.allergens).filter(Boolean) || [] };
+    }));
+    const menuWithDishes = { ...menu, dishes: dishesWithAllergens };
+    if (isToday) {
+      setTodayMenu(menuWithDishes);
+      const { data: order } = await supabase
+        .from("meal_orders").select("*").eq("user_id", userId).eq("menu_id", menu.id).maybeSingle();
+      setTodayOrder(order);
+    } else {
+      setTomorrowMenu(menuWithDishes);
+      const { data: existingOrder } = await supabase
+        .from("meal_orders").select("*").eq("user_id", userId).eq("menu_id", menu.id).maybeSingle();
+      if (existingOrder) {
+        setSelectedDishes(existingOrder.selected_dishes);
+        setIsTakeaway(existingOrder.is_takeaway || false);
+        setTakeawayTime(existingOrder.takeaway_time || "12:30");
+        setNotes(existingOrder.notes || "");
+        setFeedback(existingOrder.feedback || "");
       }
     }
   };
 
-  const handleDishToggle = (dishId: string) => {
-    setSelectedDishes(prev => 
-      prev.includes(dishId) 
-        ? prev.filter(id => id !== dishId)
-        : [...prev, dishId]
-    );
-  };
-
   const handleSubmitOrder = async () => {
-    if (selectedDishes.length === 0) {
-      toast.error("Seleziona almeno un piatto");
-      return;
-    }
-
-    if (!tomorrowMenu) {
-      toast.error("Menu di domani non disponibile");
-      return;
-    }
-
+    if (selectedDishes.length === 0) { toast.error("Seleziona almeno un piatto"); return; }
+    if (!tomorrowMenu) { toast.error("Menu di domani non disponibile"); return; }
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-
       const orderData = {
         user_id: user.id,
         menu_id: tomorrowMenu.id,
@@ -247,15 +149,8 @@ export const CustomerInterface = () => {
         notes: notes.trim() || null,
         feedback: feedback.trim() || null,
       };
-
-      const { error } = await supabase
-        .from("meal_orders")
-        .upsert(orderData, {
-          onConflict: "user_id,menu_id",
-        });
-
+      const { error } = await supabase.from("meal_orders").upsert(orderData, { onConflict: "user_id,menu_id" });
       if (error) throw error;
-
       toast.success("Ordine salvato con successo!");
       loadMenusAndOrders();
     } catch (error) {
@@ -265,37 +160,16 @@ export const CustomerInterface = () => {
   };
 
   const groupDishesByCategory = (dishes: Dish[]) => {
-    const grouped: { [key: string]: Dish[] } = {};
-    dishes.forEach(dish => {
-      if (!grouped[dish.category]) {
-        grouped[dish.category] = [];
-      }
-      grouped[dish.category].push(dish);
-    });
+    const grouped: { [k: string]: Dish[] } = {};
+    dishes.forEach(d => { (grouped[d.category] ||= []).push(d); });
     return grouped;
   };
 
-  const getCategoryLabel = (category: string) => {
-    const labels: { [key: string]: string } = {
-      primo: "PRIMI",
-      secondo: "SECONDI",
-      contorno: "CONTORNI",
-      dessert: "DESSERT",
-      aggiuntivo: "AGGIUNTIVI",
-      richieste: "RICHIESTE",
-    };
-    return labels[category] || category.toUpperCase();
-  };
+  const dishHasUserAllergens = (dish: Dish) =>
+    !!dish.allergens?.some(a => userAllergens.includes(a.id));
 
-  const dishHasUserAllergens = (dish: Dish) => {
-    if (!dish.allergens || dish.allergens.length === 0) return false;
-    return dish.allergens.some(allergen => userAllergens.includes(allergen.id));
-  };
-
-  const getFilteredDishes = (dishes: Dish[]) => {
-    if (!filterByAllergens || userAllergens.length === 0) return dishes;
-    return dishes.filter(dish => !dishHasUserAllergens(dish));
-  };
+  const getFilteredDishes = (dishes: Dish[]) =>
+    !filterByAllergens || userAllergens.length === 0 ? dishes : dishes.filter(d => !dishHasUserAllergens(d));
 
   if (loading) {
     return (
@@ -305,310 +179,277 @@ export const CustomerInterface = () => {
     );
   }
 
+  const tomorrowByCat = tomorrowMenu ? groupDishesByCategory(tomorrowMenu.dishes) : {};
+  const todayByCat = todayMenu ? groupDishesByCategory(todayMenu.dishes) : {};
+
+  const getSelectedDishForCategory = (key: string) => {
+    if (!tomorrowMenu) return null;
+    const list = tomorrowByCat[key] || [];
+    return list.find(d => selectedDishes.includes(d.id)) || null;
+  };
+
+  const handlePickDishForCategory = (key: string, dishId: string) => {
+    const list = tomorrowByCat[key] || [];
+    const others = selectedDishes.filter(id => !list.some(d => d.id === id));
+    setSelectedDishes([...others, dishId]);
+  };
+
+  const handleClearCategory = (key: string) => {
+    const list = tomorrowByCat[key] || [];
+    setSelectedDishes(selectedDishes.filter(id => !list.some(d => d.id === id)));
+  };
+
+  const initials = (userProfile?.full_name || "ID")
+    .split(" ").map((p: string) => p[0]).slice(0, 2).join("").toUpperCase();
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("it-IT");
+  const timeStr = now.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <Tabs defaultValue="menu" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="menu">Menu & Ordini</TabsTrigger>
-          <TabsTrigger value="reservations">Prenota Tavolo</TabsTrigger>
-        </TabsList>
+    <div className="max-w-md mx-auto pb-8">
+      <div className="bg-green-600 text-white rounded-t-2xl p-4 flex items-center gap-3 shadow-medium">
+        <div className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center font-bold">
+          {initials}
+        </div>
+        <div className="font-bold tracking-wide text-lg">APP MONITOR DIPENDENTE</div>
+      </div>
 
-        <TabsContent value="menu" className="space-y-6">
-          {/* Avviso per gli smanettoni */}
-      <Card className="shadow-medium bg-destructive/5 border-destructive/30">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-6 w-6 text-destructive mt-1 flex-shrink-0" />
-            <div className="space-y-2">
-              <h3 className="font-bold text-lg text-destructive">⚠️ AVVISO IMPORTANTE</h3>
-              <p className="text-sm">
-                Questo sistema è protetto e monitora ogni attività. Qualsiasi tentativo di manipolazione dei dati, 
-                accesso non autorizzato o modifica non consentita verrà rilevato e comporterà{" "}
-                <strong>sanzioni disciplinari</strong> secondo il regolamento aziendale.
-              </p>
-              <p className="text-sm font-semibold">
-                Utilizzare l'applicazione solo per le funzioni autorizzate: visualizzazione menu e invio ordini.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="bg-card rounded-b-2xl shadow-medium border border-t-0 p-4 space-y-4">
+        <Tabs defaultValue="new" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 h-auto">
+            <TabsTrigger value="saved" className="text-xs sm:text-sm py-2 whitespace-normal">
+              1. Ordine del Giorno Salvato
+            </TabsTrigger>
+            <TabsTrigger
+              value="new"
+              className="text-xs sm:text-sm py-2 whitespace-normal data-[state=active]:bg-green-600 data-[state=active]:text-white"
+            >
+              2. Inserisci Nuovo Ordine
+            </TabsTrigger>
+          </TabsList>
 
-      {/* Allergen Manager */}
-      <AllergenManager />
-
-      {/* Header with User and Canteen Info */}
-      {userProfile && canteenInfo && (
-        <Card className="shadow-lg border-2 border-primary">
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="text-2xl font-bold text-primary">
-                  {canteenInfo.name}
-                </div>
-                <div className="text-xl font-semibold">
-                  COD {canteenInfo.code}
-                </div>
-              </div>
-              <div className="grid gap-3 text-lg">
-                <div className="flex gap-2">
-                  <span className="font-semibold">NOME DIPENDENTE:</span>
-                  <span>{userProfile.full_name}</span>
-                </div>
-                <div className="flex gap-2">
-                  <span className="font-semibold">MATRICOLA:</span>
-                  <span>{userProfile.employee_number || 'N/A'}</span>
-                </div>
-                <div className="flex gap-2">
-                  <span className="font-semibold">BADGE:</span>
-                  <span>{userProfile.badge_code || 'N/A'}</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Today's Order */}
-      {todayMenu && todayOrder && (
-        <Card className="shadow-medium border-2 border-primary/20">
-          <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="h-6 w-6 text-success" />
-              <div>
-                <CardTitle className="text-2xl">Il Tuo Ordine di Oggi</CardTitle>
-                <CardDescription className="text-base">
+          <TabsContent value="saved" className="space-y-3 pt-3">
+            <h2 className="text-xl font-bold">Ordine del Giorno Salvato</h2>
+            {todayMenu && todayOrder ? (
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
                   {new Date(todayMenu.menu_date).toLocaleDateString("it-IT", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
+                    weekday: "long", day: "numeric", month: "long",
                   })}
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              {todayMenu.dishes
-                .filter(d => todayOrder.selected_dishes.includes(d.id))
-                .map(dish => (
-                  <div
-                    key={dish.id}
-                    className="flex items-center gap-3 p-4 bg-muted rounded-lg"
-                  >
-                    <UtensilsCrossed className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="font-semibold text-lg">{dish.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {getCategoryLabel(dish.category)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              {todayOrder.is_takeaway && (
-                <div className="p-4 bg-warning/10 border border-warning/20 rounded-lg">
-                  <p className="font-semibold">Asporto - Ritiro alle {todayOrder.takeaway_time}</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Tomorrow's Menu - Order Form */}
-      {tomorrowMenu ? (
-        <Card className="shadow-medium">
-          <CardHeader className="bg-gradient-to-r from-accent/10 to-accent/5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Calendar className="h-6 w-6 text-accent" />
-                <div>
-                  <CardTitle className="text-2xl">Menu di Domani</CardTitle>
-                  <CardDescription className="text-base">
-                    {new Date(tomorrowMenu.menu_date).toLocaleDateString("it-IT", {
-                      weekday: "long",
-                      day: "numeric",
-                      month: "long",
-                    })}
-                  </CardDescription>
-                </div>
-              </div>
-              {canOrder && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Clock className="h-4 w-4" />
-                  <span>Ordini entro le 16:00</span>
-                </div>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6 space-y-6">
-            {/* Allergen Filter Toggle */}
-            {userAllergens.length > 0 && (
-              <div className="flex items-center justify-between p-4 bg-warning/10 border border-warning/30 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-warning" />
-                  <Label htmlFor="filter-allergens" className="text-base font-semibold cursor-pointer">
-                    Mostra solo piatti sicuri per me
-                  </Label>
-                </div>
-                <Switch
-                  id="filter-allergens"
-                  checked={filterByAllergens}
-                  onCheckedChange={setFilterByAllergens}
-                />
-              </div>
-            )}
-
-            {!canOrder && (
-              <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-                <p className="font-semibold text-destructive">
-                  Termine per gli ordini superato (16:00)
                 </p>
-              </div>
-            )}
-
-            {Object.entries(groupDishesByCategory(tomorrowMenu.dishes)).map(
-              ([category, dishes]) => {
-                const filteredDishes = getFilteredDishes(dishes);
-                if (filteredDishes.length === 0) return null;
-
-                return (
-                  <div key={category} className="space-y-3">
-                    <h3 className="text-xl font-semibold text-primary">
-                      {getCategoryLabel(category)}
-                    </h3>
-                    <div className="space-y-2">
-                      {filteredDishes.map(dish => {
-                        const hasWarning = dishHasUserAllergens(dish);
-                        return (
-                          <div
-                            key={dish.id}
-                            className={`flex items-start gap-3 p-4 rounded-lg hover:bg-muted transition-colors ${
-                              hasWarning ? 'bg-destructive/5 border border-destructive/30' : 'bg-muted/50'
-                            }`}
-                          >
-                            <Checkbox
-                              id={dish.id}
-                              checked={selectedDishes.includes(dish.id)}
-                              onCheckedChange={() => handleDishToggle(dish.id)}
-                              disabled={!canOrder}
-                              className="mt-1"
-                            />
-                            <div className="flex-1">
-                              <Label
-                                htmlFor={dish.id}
-                                className="text-lg cursor-pointer block"
-                              >
-                                {dish.name}
-                              </Label>
-                              {dish.allergens && dish.allergens.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mt-2">
-                                  {dish.allergens.map((allergen) => (
-                                    <Badge
-                                      key={allergen.id}
-                                      variant={userAllergens.includes(allergen.id) ? "destructive" : "secondary"}
-                                      className="text-xs"
-                                    >
-                                      {allergen.icon && <span className="mr-1">{allergen.icon}</span>}
-                                      {allergen.name}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
+                {CATEGORIES.map(({ key, label }) => {
+                  const dish = (todayByCat[key] || []).find(d => todayOrder.selected_dishes.includes(d.id));
+                  return (
+                    <div key={key} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                      <span className="font-semibold text-sm">{label}</span>
+                      <span className={`text-sm ${dish ? "text-green-700 font-medium" : "italic text-muted-foreground"}`}>
+                        {dish ? dish.name : "Non selezionato"}
+                      </span>
                     </div>
+                  );
+                })}
+                {todayOrder.is_takeaway && (
+                  <div className="p-3 rounded-lg bg-warning/10 border border-warning/30 text-sm font-semibold">
+                    Asporto — Ritiro alle {todayOrder.takeaway_time}
                   </div>
-                );
-              }
-            )}
-
-            {/* Takeaway Option */}
-            <div className="space-y-4 p-4 border border-border rounded-lg">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="takeaway" className="text-lg font-semibold">
-                  Asporto
-                </Label>
-                <Switch
-                  id="takeaway"
-                  checked={isTakeaway}
-                  onCheckedChange={setIsTakeaway}
-                  disabled={!canOrder}
-                />
+                )}
               </div>
-              {isTakeaway && (
+            ) : (
+              <div className="text-center py-10 text-muted-foreground">
+                <Calendar className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>Nessun ordine salvato per oggi</p>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="new" className="space-y-4 pt-3">
+            <h2 className="text-xl font-bold">Nuovo Ordine del Giorno - Selezione</h2>
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>Data: {dateStr}</span>
+              <span>Ora: {timeStr}</span>
+            </div>
+
+            {!tomorrowMenu ? (
+              <div className="text-center py-10 text-muted-foreground">
+                <Calendar className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>Menu di domani non ancora disponibile</p>
+                <p className="text-xs mt-2">Lo chef non ha ancora pubblicato il menu</p>
+              </div>
+            ) : (
+              <>
+                {!canOrder && (
+                  <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-sm font-semibold text-destructive">
+                    Termine per gli ordini superato (16:00)
+                  </div>
+                )}
+
+                {userAllergens.length > 0 && (
+                  <div className="flex items-center justify-between p-3 bg-warning/10 border border-warning/30 rounded-lg">
+                    <div className="flex items-center gap-2 text-sm">
+                      <AlertTriangle className="h-4 w-4 text-warning" />
+                      <Label htmlFor="filter-allergens" className="font-semibold cursor-pointer">
+                        Solo piatti sicuri per me
+                      </Label>
+                    </div>
+                    <Switch id="filter-allergens" checked={filterByAllergens} onCheckedChange={setFilterByAllergens} />
+                  </div>
+                )}
+
                 <div className="space-y-2">
-                  <Label htmlFor="takeaway-time">Orario di ritiro</Label>
-                  <Input
-                    id="takeaway-time"
-                    type="time"
-                    value={takeawayTime}
-                    onChange={(e) => setTakeawayTime(e.target.value)}
-                    disabled={!canOrder}
+                  {CATEGORIES.map(({ key, label }) => {
+                    const dishesInCat = getFilteredDishes(tomorrowByCat[key] || []);
+                    const selected = getSelectedDishForCategory(key);
+                    return (
+                      <div key={key} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                        <span className="font-semibold text-sm flex-shrink-0">{label}</span>
+                        <div className="flex items-center gap-2 ml-2 flex-1 justify-end">
+                          <span className={`text-sm truncate max-w-[120px] ${selected ? "text-green-700 font-medium" : "italic text-muted-foreground"}`}>
+                            {selected ? selected.name : "Non selezionato"}
+                          </span>
+                          <Sheet>
+                            <SheetTrigger asChild>
+                              <Button
+                                size="sm"
+                                disabled={!canOrder || dishesInCat.length === 0}
+                                className="bg-green-600 hover:bg-green-700 text-white rounded-full h-8 px-3"
+                              >
+                                Scegli
+                                <ChevronRight className="h-3 w-3 ml-1" />
+                              </Button>
+                            </SheetTrigger>
+                            <SheetContent side="bottom" className="rounded-t-2xl max-h-[80vh] overflow-y-auto">
+                              <SheetHeader>
+                                <SheetTitle>{label}</SheetTitle>
+                              </SheetHeader>
+                              <div className="space-y-2 mt-4">
+                                {dishesInCat.length === 0 && (
+                                  <p className="text-center text-muted-foreground py-6">Nessuna opzione disponibile</p>
+                                )}
+                                {dishesInCat.map(dish => {
+                                  const hasWarning = dishHasUserAllergens(dish);
+                                  const isSelected = selected?.id === dish.id;
+                                  return (
+                                    <button
+                                      key={dish.id}
+                                      onClick={() => handlePickDishForCategory(key, dish.id)}
+                                      className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                                        isSelected ? "bg-green-50 border-green-500"
+                                        : hasWarning ? "bg-destructive/5 border-destructive/30"
+                                        : "bg-muted/30 hover:bg-muted"
+                                      }`}
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <span className="font-medium">{dish.name}</span>
+                                        {isSelected && <CheckCircle2 className="h-5 w-5 text-green-600" />}
+                                      </div>
+                                      {dish.allergens && dish.allergens.length > 0 && (
+                                        <div className="flex flex-wrap gap-1 mt-2">
+                                          {dish.allergens.map(a => (
+                                            <Badge
+                                              key={a.id}
+                                              variant={userAllergens.includes(a.id) ? "destructive" : "secondary"}
+                                              className="text-xs"
+                                            >
+                                              {a.icon && <span className="mr-1">{a.icon}</span>}{a.name}
+                                            </Badge>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+                                {selected && (
+                                  <Button variant="outline" className="w-full mt-2" onClick={() => handleClearCategory(key)}>
+                                    Rimuovi selezione
+                                  </Button>
+                                )}
+                              </div>
+                            </SheetContent>
+                          </Sheet>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center gap-2 p-3 border rounded-lg">
+                  <Checkbox id="takeaway" checked={isTakeaway} onCheckedChange={(v) => setIsTakeaway(!!v)} disabled={!canOrder} />
+                  <Label htmlFor="takeaway" className="font-semibold cursor-pointer">Asporto</Label>
+                  {isTakeaway && (
+                    <Input
+                      type="time" value={takeawayTime}
+                      onChange={(e) => setTakeawayTime(e.target.value)}
+                      disabled={!canOrder}
+                      className="ml-auto w-32"
+                    />
+                  )}
+                </div>
+
+                <Button
+                  onClick={handleSubmitOrder} size="lg"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+                  disabled={!canOrder || selectedDishes.length === 0}
+                >
+                  {canOrder ? "Salva Nuovo Ordine" : "Ordini Chiusi"}
+                </Button>
+
+                <Card className="border-2 border-green-200 bg-green-50/30">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base">Menù Selezionato (Anteprima)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {selectedDishes.length === 0 ? (
+                      <p className="text-sm italic text-muted-foreground">
+                        Seleziona i piatti per visualizzare l'anteprima.
+                      </p>
+                    ) : (
+                      <ul className="space-y-1 text-sm">
+                        {CATEGORIES.map(({ key, label }) => {
+                          const dish = getSelectedDishForCategory(key);
+                          if (!dish) return null;
+                          return (
+                            <li key={key} className="flex items-start gap-2">
+                              <UtensilsCrossed className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                              <span><strong>{label}:</strong> {dish.name}</span>
+                            </li>
+                          );
+                        })}
+                        {isTakeaway && (
+                          <li className="text-xs italic mt-2">Asporto — ritiro {takeawayTime}</li>
+                        )}
+                      </ul>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <div className="space-y-1">
+                  <Label htmlFor="notes" className="text-xs font-semibold">Note (opzionale)</Label>
+                  <Textarea
+                    id="notes" placeholder="Richieste particolari..."
+                    value={notes} onChange={(e) => setNotes(e.target.value)}
+                    disabled={!canOrder} rows={2} className="text-sm"
                   />
                 </div>
-              )}
-            </div>
+              </>
+            )}
+          </TabsContent>
+        </Tabs>
 
-            {/* Notes */}
-            <div className="space-y-2">
-              <Label htmlFor="notes" className="text-base font-semibold">
-                Note / Annotazioni
-              </Label>
-              <Textarea
-                id="notes"
-                placeholder="Eventuali note o richieste particolari..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                disabled={!canOrder}
-                rows={3}
-              />
-            </div>
+        <div className="flex items-center justify-between pt-3 border-t text-xs text-muted-foreground">
+          <span className="truncate max-w-[40%]">
+            ID Utente: {userProfile?.id?.slice(0, 8) || "—"}...
+          </span>
+          <span>Monitor v1.0</span>
+          <span className="bg-black text-white px-2 py-0.5 rounded text-[10px] font-bold">
+            {canteenInfo?.code || "SOFTCO"}
+          </span>
+        </div>
+      </div>
 
-            {/* Feedback */}
-            <div className="space-y-2">
-              <Label htmlFor="feedback" className="text-base font-semibold">
-                Feedback sul Servizio
-              </Label>
-              <Textarea
-                id="feedback"
-                placeholder="Lascia il tuo feedback sul servizio..."
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                rows={3}
-              />
-            </div>
-
-            <Button
-              onClick={handleSubmitOrder}
-              size="lg"
-              className="w-full text-lg"
-              disabled={!canOrder || selectedDishes.length === 0}
-            >
-              {canOrder ? "Salva Ordine" : "Ordini Chiusi"}
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="shadow-medium">
-          <CardContent className="pt-6">
-            <div className="text-center py-12">
-              <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <p className="text-xl text-muted-foreground">
-                Menu di domani non ancora disponibile
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-        </TabsContent>
-
-        <TabsContent value="reservations">
-          <TableReservation />
-        </TabsContent>
-      </Tabs>
+      <div className="mt-6 space-y-4">
+        <AllergenManager />
+        <TableReservation />
+      </div>
     </div>
   );
 };
