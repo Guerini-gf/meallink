@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, Smartphone, Monitor, CheckCircle2, Share, MoreVertical, Plus, ChefHat, QrCode, RefreshCw } from "lucide-react";
+import { Download, Smartphone, Monitor, CheckCircle2, Share, MoreVertical, Plus, ChefHat, QrCode, RefreshCw, Copy, Wifi } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -14,6 +14,18 @@ interface BeforeInstallPromptEvent extends Event {
 
 const Install = () => {
   const navigate = useNavigate();
+  const PUBLISHED_URL = "https://meallink.lovable.app";
+  const INSTALL_URL = `${PUBLISHED_URL}/install`;
+
+  const copyInstallLink = async () => {
+    try {
+      await navigator.clipboard.writeText(INSTALL_URL);
+      toast.success("Link copiato! Invialo al telefono via WhatsApp/Email.");
+    } catch {
+      toast.error("Copia non riuscita. Copia manualmente: " + INSTALL_URL);
+    }
+  };
+
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
