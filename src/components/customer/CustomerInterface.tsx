@@ -11,8 +11,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Calendar, UtensilsCrossed, CheckCircle2, AlertTriangle, ChevronRight } from "lucide-react";
-import { AllergenManager } from "@/components/profile/AllergenManager";
-import { TableReservation } from "@/components/reservation/TableReservation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 interface Allergen { id: string; name: string; icon: string | null; }
@@ -444,11 +442,6 @@ export const CustomerInterface = () => {
             {canteenInfo?.code || "SOFTCO"}
           </span>
         </div>
-      </div>
-
-      <div className="mt-6 space-y-4">
-        <AllergenManager />
-        <TableReservation />
       </div>
     </div>
   );
