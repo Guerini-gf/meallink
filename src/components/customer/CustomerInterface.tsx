@@ -443,11 +443,6 @@ export const CustomerInterface = () => {
           </span>
         </div>
       </div>
-
-      <div className="mt-6 space-y-4">
-        <AllergenManager />
-        <TableReservation />
-      </div>
     </div>
   );
 };
