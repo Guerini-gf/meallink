@@ -48,6 +48,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-muted">
+      {userRole !== "customer" && (
       <header className="bg-gradient-primary shadow-medium">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
@@ -92,11 +93,19 @@ const Dashboard = () => {
           </div>
         </div>
       </header>
+      )}
 
-      <main className="container mx-auto px-4 py-8">
+      <main className={userRole === "customer" ? "px-3 py-4" : "container mx-auto px-4 py-8"}>
         {/* Solo i dipendenti vedono solo la loro area ordini */}
         {userRole === "customer" && (
-          <CustomerInterface />
+          <>
+            <CustomerInterface />
+            <div className="max-w-md mx-auto mt-4 flex justify-center">
+              <Button onClick={handleLogout} variant="ghost" size="sm" className="text-muted-foreground">
+                <LogOut className="mr-2 h-4 w-4" /> Esci
+              </Button>
+            </div>
+          </>
         )}
 
         {/* Chef vede statistiche, gestione menu e scanner */}
