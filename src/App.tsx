@@ -7,6 +7,8 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Install from "./pages/Install";
+import InstallDipendente from "./pages/InstallDipendente";
+import Dipendente from "./pages/Dipendente";
 import NotFound from "./pages/NotFound";
 import PreviewTokenGuard from "./components/PreviewTokenGuard";
 import OfflineIndicator from "./components/OfflineIndicator";
@@ -26,6 +28,8 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/install" element={<Install />} />
+          <Route path="/install-dipendente" element={<InstallDipendente />} />
+          <Route path="/dipendente" element={<Dipendente />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
