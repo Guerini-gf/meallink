@@ -1,65 +1,23 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { createSupabaseMock, isoDate, type QueryLog } from "@/test/supabase-mock";
+import {
+  EMPLOYEE_ID,
+  CANTEEN_ID,
+  TODAY,
+  TOMORROW,
+  DAY_AFTER,
+  queries,
+  resetQueries,
+} from "@/test/canteen-fixtures";
 
-const EMPLOYEE_ID = "11111111-1111-1111-1111-111111111111";
-const CANTEEN_ID = "22222222-2222-2222-2222-222222222222";
-
-const TODAY = isoDate(0);
-const TOMORROW = isoDate(1);
-const DAY_AFTER = isoDate(2);
-
-const MENUS: Record<string, { id: string; dish: { id: string; name: string } }> = {
-  [TODAY]: { id: "menu-today", dish: { id: "dish-today", name: "Lasagne di Oggi" } },
-  [TOMORROW]: { id: "menu-tomorrow", dish: { id: "dish-tomorrow", name: "Risotto di Domani" } },
-  [DAY_AFTER]: { id: "menu-dayafter", dish: { id: "dish-dayafter", name: "Polenta Dopodomani" } },
-};
-
-let queries: QueryLog[] = [];
-
-const handler = (q: QueryLog): unknown => {
-  switch (q.table) {
-    case "profiles":
-      return { id: EMPLOYEE_ID, canteen_id: CANTEEN_ID, full_name: "Mario Rossi", employee_number: "42", badge_code: "ABC123" };
-    case "user_roles":
-      return { role: "customer" };
-    case "user_allergens":
-      return [];
-    case "canteens":
-      return { name: "Mensa Test", code: "MT01" };
-    case "daily_menus": {
-      const date = q.filters.menu_date as string;
-      const menu = MENUS[date];
-      return menu ? { id: menu.id, menu_date: date, meal_type: "lunch", order_deadline: "15:00:00" } : null;
-    }
-    case "menu_dishes": {
-      const menuId = q.filters.menu_id as string;
-      const entry = Object.values(MENUS).find((m) => m.id === menuId);
-      return entry ? [{ dish_id: entry.dish.id }] : [];
-    }
-    case "dishes": {
-      const ids = (q.filters.id as string[]) || [];
-      return Object.values(MENUS)
-        .filter((m) => ids.includes(m.dish.id))
-        .map((m) => ({ ...m.dish, category: "primo", canteen_id: CANTEEN_ID }));
-    }
-    case "dish_allergens":
-      return [];
-    case "meal_orders":
-      return null;
-    default:
-      return null;
-  }
-};
-
-vi.mock("@/integrations/supabase/client", () => {
-  const mock = createSupabaseMock({ userId: EMPLOYEE_ID, handler: (q) => {
-    queries.push(q);
-    return handler(q);
-  } });
+vi.mock("@/integrations/supabase/client", async () => {
+  const { createSupabaseMock } = await import("@/test/supabase-mock");
+  const fixtures = await import("@/test/canteen-fixtures");
+  const mock = createSupabaseMock({ userId: fixtures.EMPLOYEE_ID, handler: fixtures.handler });
   return { supabase: mock.client };
 });
+
 
 // Heavy staff-only widgets are stubbed: these tests assert access, not rendering.
 vi.mock("@/components/menu/MenuManager", () => ({ MenuManager: () => <div>MenuManager</div> }));
@@ -80,7 +38,7 @@ const renderWithRouter = (ui: React.ReactElement) =>
   render(<MemoryRouter>{ui}</MemoryRouter>);
 
 beforeEach(() => {
-  queries = [];
+  resetQueries();
   roleState.userRole = "customer";
 });
 
