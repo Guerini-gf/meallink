@@ -1,18 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { denied, type QueryLog } from "@/test/supabase-mock";
+import type { QueryLog } from "@/test/supabase-mock";
 
-const EMPLOYEE_ID = "11111111-1111-1111-1111-111111111111";
+const { EMPLOYEE_ID, STAFF_TABLES, state } = vi.hoisted(() => ({
+  EMPLOYEE_ID: "11111111-1111-1111-1111-111111111111",
+  /** Tables an employee (customer role) must never be able to read/write. */
+  STAFF_TABLES: ["investor_leads", "pending_employees", "menu_dishes", "dishes"],
+  state: { hasSession: true, rpcDenied: true, queries: [] as QueryLog[] },
+}));
 
-/** Tables an employee (customer role) must never be able to read/write. */
-const STAFF_TABLES = ["investor_leads", "pending_employees", "menu_dishes", "dishes"];
-
-const state = {
-  hasSession: true,
-  rpcDenied: true,
-  queries: [] as QueryLog[],
-};
+const navigate = vi.hoisted(() => vi.fn());
 
 vi.mock("@/integrations/supabase/client", async () => {
   const { createSupabaseMock } = await import("@/test/supabase-mock");
@@ -39,7 +37,6 @@ vi.mock("@/integrations/supabase/client", async () => {
   return { supabase: mock.client };
 });
 
-const navigate = vi.fn();
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual<any>("react-router-dom");
   return { ...actual, useNavigate: () => navigate };
