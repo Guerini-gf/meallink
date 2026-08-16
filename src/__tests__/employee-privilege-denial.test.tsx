@@ -80,7 +80,7 @@ describe("employee session hitting chef-only data endpoints", () => {
   });
 
   it("is denied when writing dishes or menu composition", async () => {
-    const dish = await supabase.from("dishes").insert({ name: "Hack" });
+    const dish = await supabase.from("dishes").insert({ name: "Hack", category: "primo" });
     const link = await supabase.from("menu_dishes").insert({ menu_id: "x", dish_id: "y" });
     expect(dish.error?.code).toBe("42501");
     expect(link.error?.code).toBe("42501");
