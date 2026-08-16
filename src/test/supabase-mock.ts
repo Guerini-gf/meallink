@@ -9,6 +9,11 @@ export type QueryLog = {
 
 type Handler = (q: QueryLog) => unknown;
 
+/** Wrap a handler return value to simulate a Postgres/RLS denial. */
+export const denied = (message = "new row violates row-level security policy") => ({
+  __error: { message, code: "42501", details: null, hint: null, status: 403 },
+});
+
 /**
  * Minimal chainable stub of the supabase-js query builder.
  * Every terminal call is recorded so tests can assert *what* a role is
@@ -25,7 +30,11 @@ export const createSupabaseMock = (opts: {
 
     const resolve = () => {
       queries.push({ ...q, filters: { ...q.filters } });
-      return Promise.resolve({ data: opts.handler(q) ?? null, error: null });
+      const result = opts.handler(q) as any;
+      if (result && typeof result === "object" && "__error" in result) {
+        return Promise.resolve({ data: null, error: result.__error });
+      }
+      return Promise.resolve({ data: result ?? null, error: null });
     };
 
     const builder: any = {
