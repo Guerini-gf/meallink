@@ -4,7 +4,7 @@
   "short_name": "Dipendente",
   "description": "Menu del giorno e prenotazione pasto per i dipendenti",
   "start_url": "/dipendente",
-  "scope": "/",
+  "scope": "/dipendente",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
