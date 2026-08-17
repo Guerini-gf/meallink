@@ -183,6 +183,10 @@ const Install = () => {
           <Badge variant="secondary" className="mt-3">
             v1.0 • PWA
           </Badge>
+          <p className="text-xs text-muted-foreground mt-3 max-w-xs mx-auto">
+            Questa è l'app chef/operatore. Per i dipendenti usa{" "}
+            <a href="/install-dipendente" className="underline text-primary">install-dipendente</a>; le due app possono coesistere sullo stesso telefono.
+          </p>
         </div>
 
         {/* Quick Install & QR Code */}
