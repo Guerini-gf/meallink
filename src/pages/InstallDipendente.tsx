@@ -174,6 +174,11 @@ const InstallDipendente = () => {
         <Button onClick={() => navigate("/dipendente")} variant="outline" className="w-full" size="lg">
           Apri nel browser senza installare
         </Button>
+
+        <p className="text-xs text-muted-foreground text-center mt-4">
+          Hai bisogno anche dell'app chef? Installala da{" "}
+          <a href="/install" className="underline text-primary">/install</a>. Le due app convivono sullo stesso dispositivo.
+        </p>
       </div>
     </div>
   );
