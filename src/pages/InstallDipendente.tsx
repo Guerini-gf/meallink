@@ -96,12 +96,13 @@ const InstallDipendente = () => {
 
         <Card className="mb-6 border-green-200">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <QrCode className="w-5 h-5" /> Installa sul telefono del dipendente
-            </CardTitle>
-            <CardDescription>
-              Questa è una versione separata dal gestionale: il dipendente vedrà solo il menu e l'ordine.
-            </CardDescription>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <QrCode className="w-5 h-5" /> Installa sul telefono del dipendente
+          </CardTitle>
+          <CardDescription>
+            Questa è una versione separata dal gestionale: il dipendente vedrà solo il menu e l'ordine.
+            Può essere installata insieme all'app chef senza conflitti.
+          </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
             <div className="rounded-lg border border-green-200 bg-green-50 p-4 space-y-3">
@@ -173,6 +174,11 @@ const InstallDipendente = () => {
         <Button onClick={() => navigate("/dipendente")} variant="outline" className="w-full" size="lg">
           Apri nel browser senza installare
         </Button>
+
+        <p className="text-xs text-muted-foreground text-center mt-4">
+          Hai bisogno anche dell'app chef? Installala da{" "}
+          <a href="/install" className="underline text-primary">/install</a>. Le due app convivono sullo stesso dispositivo.
+        </p>
       </div>
     </div>
   );

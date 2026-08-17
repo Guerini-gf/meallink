@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => ({
       filename: 'sw.js',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'pwa-icon-192.png', 'pwa-icon-512.png'],
       manifest: {
+        id: '/',
         name: 'MealLink - Gestione Mense Digitale',
         short_name: 'MealLink',
         description: 'Sistema digitale professionale per la gestione delle mense aziendali',
