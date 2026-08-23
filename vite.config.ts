@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
       injectRegister: null,
       devOptions: { enabled: false },
       filename: 'sw.js',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'pwa-icon-192.png', 'pwa-icon-512.png'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'pwa-icon-192.png', 'pwa-icon-512.png', 'apple-touch-icon-dipendente.png', 'pwa-dipendente-192.png', 'pwa-dipendente-512.png'],
       manifest: {
         id: '/',
         name: 'MealLink - Gestione Mense Digitale',
