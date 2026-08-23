@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { applyDipendenteHead } from "@/pwa/dipendenteHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,9 +24,8 @@ const InstallDipendente = () => {
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    // Use the employee manifest so the installed app opens directly on /dipendente
-    const link = document.querySelector('link[rel="manifest"]');
-    if (link) link.setAttribute("href", "/manifest-dipendente.webmanifest");
+    // Employee-only PWA identity (manifest, icons, title)
+    applyDipendenteHead();
     document.title = "Installa MealLink Dipendente";
 
     const ua = navigator.userAgent.toLowerCase();

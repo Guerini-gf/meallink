@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { applyDipendenteHead } from "@/pwa/dipendenteHead";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,9 +12,8 @@ const Dipendente = () => {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Swap manifest to the employee-only PWA so install uses /dipendente as start_url
-    const existing = document.querySelector('link[rel="manifest"]');
-    if (existing) existing.setAttribute("href", "/manifest-dipendente.webmanifest");
+    // Employee-only PWA identity (manifest, icons, title)
+    applyDipendenteHead();
     document.title = "MealLink Dipendente";
 
     (async () => {
