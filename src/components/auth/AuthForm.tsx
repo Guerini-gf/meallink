@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,15 +15,23 @@ type AuthMode = "login" | "signup";
 type UserRole = 'customer' | 'chef' | 'operator';
 
 export const AuthForm = () => {
+  const location = useLocation();
+  const redirectTo = new URLSearchParams(location.search).get("redirect") || "";
+  // App dipendente: nessuna registrazione chef, solo Dipendente / Dirigente
+  const isEmployeeApp =
+    redirectTo.startsWith("/dipendente") || location.pathname.startsWith("/dipendente");
+
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [badgeCode, setBadgeCode] = useState("");
   const [role, setRole] = useState<UserRole>('customer');
+  const [employeeType, setEmployeeType] = useState<'dipendente' | 'dirigente'>('dipendente');
   const [canteenCode, setCanteenCode] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
 
   const [pendingEmployee, setPendingEmployee] = useState<{
     full_name: string;
@@ -175,16 +183,40 @@ export const AuthForm = () => {
               <>
                 <div className="space-y-2">
                   <Label htmlFor="role">Ruolo</Label>
-                  <Select value={role} onValueChange={(value: UserRole) => setRole(value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleziona ruolo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="customer">Cliente</SelectItem>
-                      <SelectItem value="chef">Chef</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {isEmployeeApp ? (
+                    <>
+                      <Select
+                        value={employeeType}
+                        onValueChange={(value: 'dipendente' | 'dirigente') => {
+                          setEmployeeType(value);
+                          setRole('customer');
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona ruolo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="dipendente">Dipendente</SelectItem>
+                          <SelectItem value="dirigente">Dirigente</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-muted-foreground">
+                        In questa app puoi registrarti solo come dipendente o dirigente.
+                      </p>
+                    </>
+                  ) : (
+                    <Select value={role} onValueChange={(value: UserRole) => setRole(value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona ruolo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="customer">Cliente</SelectItem>
+                        <SelectItem value="chef">Chef</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
+
 
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Nome Completo</Label>
