@@ -19,7 +19,7 @@ const Dipendente = () => {
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        navigate("/auth?redirect=/dipendente");
+        navigate("/dipendente/auth?redirect=/dipendente");
         return;
       }
       setReady(true);
@@ -29,7 +29,7 @@ const Dipendente = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     toast.success("Logout effettuato");
-    navigate("/auth?redirect=/dipendente");
+    navigate("/dipendente/auth?redirect=/dipendente");
   };
 
   if (!ready) {

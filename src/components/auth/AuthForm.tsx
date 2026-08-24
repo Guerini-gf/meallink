@@ -112,7 +112,7 @@ export const AuthForm = () => {
           email: validatedData.email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: `${window.location.origin}${redirectTo || "/"}`,
             data: signupMetadata,
           },
         });
@@ -146,7 +146,7 @@ export const AuthForm = () => {
 
         if (error) throw error;
         toast.success("Login effettuato!");
-        navigate("/dashboard");
+        navigate(redirectTo || "/dashboard");
       }
     } catch (error: any) {
       if (error instanceof z.ZodError) {

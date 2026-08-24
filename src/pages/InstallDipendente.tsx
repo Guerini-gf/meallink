@@ -16,7 +16,7 @@ interface BeforeInstallPromptEvent extends Event {
 const InstallDipendente = () => {
   const navigate = useNavigate();
   const PUBLISHED_URL = "https://meallink.lovable.app";
-  const INSTALL_URL = `${PUBLISHED_URL}/install-dipendente`;
+  const INSTALL_URL = `${PUBLISHED_URL}/dipendente/installa`;
 
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -160,8 +160,8 @@ const InstallDipendente = () => {
               Apri la pagina Dipendente per installarla
             </Button>
             <p className="text-xs text-muted-foreground">
-              Importante su iPhone: l'icona verde "Dipendente" viene salvata solo se aggiungi a Home
-              dalla pagina <span className="font-mono">/dipendente</span>, non da questa pagina.
+               Importante su iPhone: apri il collegamento in Safari, poi aggiungi a Home dalla pagina
+               Dipendente. Il nome proposto deve essere “Dipendente”.
             </p>
           </CardContent>
         </Card>
