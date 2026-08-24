@@ -5,8 +5,10 @@
  * never the chef/canteen app branding.
  */
 export function applyDipendenteHead() {
-  const manifest = document.querySelector('link[rel="manifest"]');
-  if (manifest) manifest.setAttribute("href", "/manifest-dipendente.webmanifest");
+  document.querySelectorAll('link[rel="manifest"]').forEach((el, index) => {
+    if (index === 0) el.setAttribute("href", "/manifest-dipendente.webmanifest");
+    else el.remove();
+  });
 
   // Replace every apple-touch-icon with the employee icon (iOS home screen)
   document.querySelectorAll('link[rel="apple-touch-icon"]').forEach((el) => el.remove());

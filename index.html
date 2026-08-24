@@ -36,6 +36,15 @@
         if (p.indexOf("/dipendente") !== 0 && p.indexOf("/install-dipendente") !== 0) return;
         var m = document.querySelector('link[rel="manifest"]');
         if (m) m.setAttribute("href", "/manifest-dipendente.webmanifest");
+        // L'hosting può aggiungere in seguito il manifest principale: su iOS
+        // va rimosso, altrimenti prevalgono nome e avvio dell'app Chef.
+        new MutationObserver(function () {
+          var manifests = document.querySelectorAll('link[rel="manifest"]');
+          manifests.forEach(function (el, index) {
+            if (index === 0) el.setAttribute("href", "/manifest-dipendente.webmanifest");
+            else el.parentNode.removeChild(el);
+          });
+        }).observe(document.head, { childList: true });
         document.querySelectorAll('link[rel="apple-touch-icon"], link[rel="icon"]').forEach(function (el) {
           el.parentNode.removeChild(el);
         });
