@@ -183,16 +183,40 @@ export const AuthForm = () => {
               <>
                 <div className="space-y-2">
                   <Label htmlFor="role">Ruolo</Label>
-                  <Select value={role} onValueChange={(value: UserRole) => setRole(value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleziona ruolo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="customer">Cliente</SelectItem>
-                      <SelectItem value="chef">Chef</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {isEmployeeApp ? (
+                    <>
+                      <Select
+                        value={employeeType}
+                        onValueChange={(value: 'dipendente' | 'dirigente') => {
+                          setEmployeeType(value);
+                          setRole('customer');
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleziona ruolo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="dipendente">Dipendente</SelectItem>
+                          <SelectItem value="dirigente">Dirigente</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-muted-foreground">
+                        In questa app puoi registrarti solo come dipendente o dirigente.
+                      </p>
+                    </>
+                  ) : (
+                    <Select value={role} onValueChange={(value: UserRole) => setRole(value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleziona ruolo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="customer">Cliente</SelectItem>
+                        <SelectItem value="chef">Chef</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
+
 
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Nome Completo</Label>
