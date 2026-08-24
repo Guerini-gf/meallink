@@ -27,7 +27,45 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="MealLink - Gestione Digitale Mense" />
     <meta name="twitter:image" content="/pwa-icon-512.png" />
+
+    <!-- Identità PWA dipendente: applicata PRIMA del render, così iOS Safari
+         legge manifest/icone corrette al primo caricamento -->
+    <script>
+      (function () {
+        var p = location.pathname;
+        if (p.indexOf("/dipendente") !== 0 && p.indexOf("/install-dipendente") !== 0) return;
+        var m = document.querySelector('link[rel="manifest"]');
+        if (m) m.setAttribute("href", "/manifest-dipendente.webmanifest");
+        document.querySelectorAll('link[rel="apple-touch-icon"], link[rel="icon"]').forEach(function (el) {
+          el.parentNode.removeChild(el);
+        });
+        var ai = document.createElement("link");
+        ai.rel = "apple-touch-icon";
+        ai.setAttribute("sizes", "180x180");
+        ai.href = "/apple-touch-icon-dipendente.png";
+        document.head.appendChild(ai);
+        var ic = document.createElement("link");
+        ic.rel = "icon";
+        ic.type = "image/png";
+        ic.href = "/pwa-dipendente-192.png";
+        document.head.appendChild(ic);
+        function setMeta(n, c) {
+          var el = document.querySelector('meta[name="' + n + '"]');
+          if (!el) {
+            el = document.createElement("meta");
+            el.setAttribute("name", n);
+            document.head.appendChild(el);
+          }
+          el.setAttribute("content", c);
+        }
+        setMeta("apple-mobile-web-app-title", "Dipendente");
+        setMeta("application-name", "MealLink Dipendente");
+        setMeta("theme-color", "#16a34a");
+        document.title = "MealLink Dipendente";
+      })();
+    </script>
   </head>
+
 
   <body>
     <div id="root"></div>
