@@ -147,14 +147,25 @@ const InstallDipendente = () => {
               <Smartphone className="w-5 h-5" /> iPhone / iPad
               {isIOS && <Badge className="ml-auto bg-green-600">Il tuo dispositivo</Badge>}
             </CardTitle>
-            <CardDescription>Aprire in Safari</CardDescription>
+            <CardDescription>Aprire in Safari (non Chrome)</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Step n={1} icon={<Share className="w-4 h-4" />} text="Tocca il pulsante Condividi in basso" />
-            <Step n={2} icon={<Plus className="w-4 h-4" />} text='Scegli "Aggiungi a Home"' />
-            <Step n={3} icon={<CheckCircle2 className="w-4 h-4" />} text='Tocca "Aggiungi"' />
+            <Step n={1} icon={<UtensilsCrossed className="w-4 h-4" />} text="Tocca il pulsante verde qui sotto: si apre la pagina Dipendente" />
+            <Step n={2} icon={<Share className="w-4 h-4" />} text="Da lì tocca Condividi in basso" />
+            <Step n={3} icon={<Plus className="w-4 h-4" />} text='Scegli "Aggiungi a Home" e conferma' />
+            <Button
+              onClick={() => { window.location.href = `${PUBLISHED_URL}/dipendente`; }}
+              className="w-full bg-green-600 hover:bg-green-700"
+            >
+              Apri la pagina Dipendente per installarla
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Importante su iPhone: l'icona verde "Dipendente" viene salvata solo se aggiungi a Home
+              dalla pagina <span className="font-mono">/dipendente</span>, non da questa pagina.
+            </p>
           </CardContent>
         </Card>
+
 
         <Card className={`mb-6 ${isAndroid ? "border-green-400 bg-green-50" : ""}`}>
           <CardHeader>
