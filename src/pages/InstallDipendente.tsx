@@ -16,7 +16,7 @@ interface BeforeInstallPromptEvent extends Event {
 const InstallDipendente = () => {
   const navigate = useNavigate();
   const PUBLISHED_URL = "https://meallink.lovable.app";
-  const INSTALL_URL = `${PUBLISHED_URL}/dipendente/installa`;
+  const INSTALL_URL = `${PUBLISHED_URL}/dipendente/installa/`;
 
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
@@ -154,7 +154,7 @@ const InstallDipendente = () => {
             <Step n={2} icon={<Share className="w-4 h-4" />} text="Da lì tocca Condividi in basso" />
             <Step n={3} icon={<Plus className="w-4 h-4" />} text='Scegli "Aggiungi a Home" e conferma' />
             <Button
-              onClick={() => { window.location.href = `${PUBLISHED_URL}/dipendente`; }}
+              onClick={() => { window.location.href = `${PUBLISHED_URL}/dipendente/`; }}
               className="w-full bg-green-600 hover:bg-green-700"
             >
               Apri la pagina Dipendente per installarla

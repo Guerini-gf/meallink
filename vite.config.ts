@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import { fileURLToPath, URL } from "node:url";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -19,48 +20,7 @@ export default defineConfig(({ mode }) => ({
       devOptions: { enabled: false },
       filename: 'sw.js',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'pwa-icon-192.png', 'pwa-icon-512.png', 'apple-touch-icon-dipendente.png', 'pwa-dipendente-192.png', 'pwa-dipendente-512.png'],
-      manifest: {
-        id: '/',
-        name: 'MealLink - Gestione Mense Digitale',
-        short_name: 'MealLink',
-        description: 'Sistema digitale professionale per la gestione delle mense aziendali',
-        theme_color: '#22c55e',
-        background_color: '#ffffff',
-        display: 'standalone',
-        orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
-        categories: ['food', 'business', 'productivity'],
-        icons: [
-          {
-            src: '/pwa-icon-192.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: '/pwa-icon-512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: '/pwa-icon-512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable'
-          }
-        ],
-        screenshots: [
-          {
-            src: '/pwa-icon-512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            form_factor: 'narrow',
-            label: 'MealLink App'
-          }
-        ]
-      },
+      manifest: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,jpg,png,svg,woff2}'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
@@ -120,6 +80,15 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        dipendente: fileURLToPath(new URL('./dipendente/index.html', import.meta.url)),
+        installaDipendente: fileURLToPath(new URL('./dipendente/installa/index.html', import.meta.url)),
+      },
     },
   },
 }));
