@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Calendar, UtensilsCrossed, CheckCircle2, AlertTriangle, ChevronRight } from "lucide-react";
+import { saveSnapshot, loadSnapshot, queueOrder, flushPendingOrders, getPendingOrders, isNetworkError } from "@/lib/offlineOrders";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 interface Allergen { id: string; name: string; icon: string | null; }
@@ -50,18 +51,74 @@ export const CustomerInterface = () => {
   const [userAllergens, setUserAllergens] = useState<string[]>([]);
   const [filterByAllergens, setFilterByAllergens] = useState(false);
 
-  useEffect(() => { loadMenusAndOrders(); }, []);
+  const [fromCache, setFromCache] = useState(false);
+  const [pendingCount, setPendingCount] = useState(getPendingOrders().length);
+
+  useEffect(() => {
+    loadMenusAndOrders();
+    const sync = async () => {
+      const { synced, rejected } = await flushPendingOrders();
+      if (synced) { toast.success(`${synced} ordine/i offline inviati`); loadMenusAndOrders(); }
+      if (rejected) toast.error(`${rejected} ordine/i offline rifiutati (scadenza superata o dati non validi)`);
+    };
+    const onPending = () => setPendingCount(getPendingOrders().length);
+    const onOnline = () => { sync(); };
+    window.addEventListener("online", onOnline);
+    window.addEventListener("meallink:pending-changed", onPending);
+    const iv = window.setInterval(sync, 30000);
+    sync();
+    return () => {
+      window.removeEventListener("online", onOnline);
+      window.removeEventListener("meallink:pending-changed", onPending);
+      window.clearInterval(iv);
+    };
+  }, []);
+
+  // Persist the last good data so the app works without network
+  useEffect(() => {
+    if (loading || fromCache || !userProfile) return;
+    saveSnapshot({ todayMenu, todayOrder, tomorrowMenu, userProfile, canteenInfo, userAllergens,
+      order: { selectedDishes, isTakeaway, takeawayTime, notes, feedback } });
+  }, [loading, fromCache, todayMenu, todayOrder, tomorrowMenu, userProfile, canteenInfo, userAllergens]);
+
+  const restoreSnapshot = (): boolean => {
+    const snap = loadSnapshot<any>();
+    if (!snap) return false;
+    const d = snap.data;
+    setTodayMenu(d.todayMenu); setTodayOrder(d.todayOrder); setTomorrowMenu(d.tomorrowMenu);
+    setUserProfile(d.userProfile); setCanteenInfo(d.canteenInfo); setUserAllergens(d.userAllergens || []);
+    const pending = getPendingOrders().find(o => o.menu_id === d.tomorrowMenu?.id);
+    const o = pending
+      ? { selectedDishes: pending.selected_dishes, isTakeaway: pending.is_takeaway, takeawayTime: pending.takeaway_time || "12:30", notes: pending.notes || "", feedback: pending.feedback || "" }
+      : d.order;
+    if (o) {
+      setSelectedDishes(o.selectedDishes || []); setIsTakeaway(!!o.isTakeaway);
+      setTakeawayTime(o.takeawayTime || "12:30"); setNotes(o.notes || ""); setFeedback(o.feedback || "");
+    }
+    const now = new Date();
+    setCanOrder(now.getHours() * 60 + now.getMinutes() < 16 * 60);
+    setFromCache(true);
+    return true;
+  };
 
   const loadMenusAndOrders = async () => {
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      if (!restoreSnapshot()) toast.error("Sei offline e non ci sono dati salvati");
+      setLoading(false);
+      return;
+    }
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) return;
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id, canteen_id, full_name, employee_number, badge_code")
         .eq("id", user.id)
         .maybeSingle();
+      if (profileError && isNetworkError(profileError)) throw profileError;
       if (!profile?.canteen_id) return;
+      setFromCache(false);
       setUserProfile(profile);
 
       const { data: allergensData } = await supabase
@@ -81,7 +138,8 @@ export const CustomerInterface = () => {
       setCanOrder(now.getHours() * 60 + now.getMinutes() < 16 * 60);
     } catch (error) {
       console.error("Error loading data:", error);
-      toast.error("Errore nel caricamento dei dati");
+      if (restoreSnapshot()) toast.info("Rete instabile: mostro gli ultimi dati salvati");
+      else toast.error("Errore nel caricamento dei dati");
     } finally {
       setLoading(false);
     }
@@ -135,10 +193,10 @@ export const CustomerInterface = () => {
   const handleSubmitOrder = async () => {
     if (selectedDishes.length === 0) { toast.error("Seleziona almeno un piatto"); return; }
     if (!tomorrowMenu) { toast.error("Menu di domani non disponibile"); return; }
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const orderData = {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if (!user) return;
+    const orderData = {
         user_id: user.id,
         menu_id: tomorrowMenu.id,
         selected_dishes: selectedDishes,
@@ -146,14 +204,21 @@ export const CustomerInterface = () => {
         takeaway_time: isTakeaway ? takeawayTime : null,
         notes: notes.trim() || null,
         feedback: feedback.trim() || null,
-      };
+    };
+    const saveOffline = () => {
+      queueOrder(orderData);
+      toast.info("Sei offline: ordine salvato sul telefono, verrà inviato appena torna la rete (entro le 16:00)");
+    };
+    if (!navigator.onLine) { saveOffline(); return; }
+    try {
       const { error } = await supabase.from("meal_orders").upsert(orderData, { onConflict: "user_id,menu_id" });
       if (error) throw error;
       toast.success("Ordine salvato con successo!");
       loadMenusAndOrders();
     } catch (error) {
       console.error("Error submitting order:", error);
-      toast.error("Errore nel salvare l'ordine");
+      if (isNetworkError(error)) saveOffline();
+      else toast.error("Errore nel salvare l'ordine");
     }
   };
 
@@ -213,6 +278,12 @@ export const CustomerInterface = () => {
       </div>
 
       <div className="bg-card rounded-b-2xl shadow-medium border border-t-0 p-4 space-y-4">
+        {(fromCache || pendingCount > 0) && (
+          <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm space-y-1">
+            {fromCache && <p>Modalità offline: menu dall'ultimo aggiornamento.</p>}
+            {pendingCount > 0 && <p className="font-semibold">{pendingCount} ordine in attesa di invio — verrà spedito appena torna la rete.</p>}
+          </div>
+        )}
         <Tabs defaultValue="new" className="w-full">
           <TabsList className="grid w-full grid-cols-2 h-auto">
             <TabsTrigger value="saved" className="text-xs sm:text-sm py-2 whitespace-normal">
