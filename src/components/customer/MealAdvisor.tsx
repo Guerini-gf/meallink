@@ -29,7 +29,7 @@ export const MealAdvisor = ({ dishes }: { dishes: Dish[] }) => {
       setError(msg);
       return;
     }
-    if (data?.error) setError(data.error); else setResult(data?.recommendation || "");
+    if (data?.error) setError(data.error); else setResult((data?.recommendation || "").replace(/\*\*/g, ""));
   };
 
   return (
