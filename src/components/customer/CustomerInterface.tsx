@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Calendar, UtensilsCrossed, CheckCircle2, AlertTriangle, ChevronRight } from "lucide-react";
 import { saveSnapshot, loadSnapshot, queueOrder, flushPendingOrders, getPendingOrders, isNetworkError } from "@/lib/offlineOrders";
+import { MealAdvisor } from "./MealAdvisor";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 interface Allergen { id: string; name: string; icon: string | null; }
@@ -333,6 +334,7 @@ export const CustomerInterface = () => {
 
           <TabsContent value="new" className="space-y-4 pt-3">
             <h2 className="text-xl font-bold">Nuovo Ordine del Giorno - Selezione</h2>
+            {tomorrowMenu && tomorrowMenu.dishes.length > 0 && <MealAdvisor dishes={tomorrowMenu.dishes} />}
             <div className="flex items-center justify-between text-sm text-muted-foreground">
               <span>Data: {dateStr}</span>
               <span>Ora: {timeStr}</span>
