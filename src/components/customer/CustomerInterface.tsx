@@ -43,6 +43,7 @@ export const CustomerInterface = () => {
   const [selectedDishes, setSelectedDishes] = useState<string[]>([]);
   const [isTakeaway, setIsTakeaway] = useState(false);
   const [takeawayTime, setTakeawayTime] = useState("12:30");
+  const [deliveryTime, setDeliveryTime] = useState("12:30");
   const [notes, setNotes] = useState("");
   const [feedback, setFeedback] = useState("");
   const [loading, setLoading] = useState(true);
@@ -185,6 +186,7 @@ export const CustomerInterface = () => {
         setSelectedDishes(existingOrder.selected_dishes);
         setIsTakeaway(existingOrder.is_takeaway || false);
         setTakeawayTime(existingOrder.takeaway_time || "12:30");
+        setDeliveryTime(((existingOrder as any).delivery_time || "12:30").slice(0, 5));
         setNotes(existingOrder.notes || "");
         setFeedback(existingOrder.feedback || "");
       }
@@ -203,6 +205,7 @@ export const CustomerInterface = () => {
         selected_dishes: selectedDishes,
         is_takeaway: isTakeaway,
         takeaway_time: isTakeaway ? takeawayTime : null,
+        delivery_time: deliveryTime,
         notes: notes.trim() || null,
         feedback: feedback.trim() || null,
     };
@@ -456,6 +459,16 @@ export const CustomerInterface = () => {
                   )}
                 </div>
 
+                <div className="flex items-center gap-2 p-3 border rounded-lg">
+                  <Label htmlFor="deliveryTime" className="font-semibold">Orario di consegna</Label>
+                  <Input
+                    id="deliveryTime" type="time" value={deliveryTime} min="11:00" max="15:00" step={900}
+                    onChange={(e) => setDeliveryTime(e.target.value)}
+                    disabled={!canOrder}
+                    className="ml-auto w-32"
+                  />
+                </div>
+
                 <Button
                   onClick={handleSubmitOrder} size="lg"
                   className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
@@ -485,6 +498,7 @@ export const CustomerInterface = () => {
                             </li>
                           );
                         })}
+                        <li className="text-xs italic mt-2">Consegna alle {deliveryTime}</li>
                         {isTakeaway && (
                           <li className="text-xs italic mt-2">Asporto — ritiro {takeawayTime}</li>
                         )}

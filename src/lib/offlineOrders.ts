@@ -9,6 +9,7 @@ export interface PendingOrder {
   selected_dishes: string[];
   is_takeaway: boolean;
   takeaway_time: string | null;
+  delivery_time?: string | null;
   notes: string | null;
   feedback: string | null;
   queued_at: string;
