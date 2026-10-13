@@ -7,6 +7,7 @@ import { ScannerInterface } from "@/components/scanner/ScannerInterface";
 import { MenuManager } from "@/components/menu/MenuManager";
 import { CustomerInterface } from "@/components/customer/CustomerInterface";
 import { ChefStatistics } from "@/components/dashboard/ChefStatistics";
+import { DeliverySchedule } from "@/components/dashboard/DeliverySchedule";
 import { InvestorLeads } from "@/components/dashboard/InvestorLeads";
 import { EmployeeManager } from "@/components/employees/EmployeeManager";
 import { PWAInstallBanner } from "@/components/pwa/PWAInstallBanner";
@@ -111,8 +112,9 @@ const Dashboard = () => {
         {/* Chef vede statistiche, gestione menu e scanner */}
         {userRole === "chef" && (
           <Tabs defaultValue="stats" className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="stats">Statistiche</TabsTrigger>
+              <TabsTrigger value="deliveries">Consegne</TabsTrigger>
               <TabsTrigger value="menu">Gestione Menu</TabsTrigger>
               <TabsTrigger value="employees">Dipendenti</TabsTrigger>
               <TabsTrigger value="scanner">Scanner Ordini</TabsTrigger>
@@ -123,6 +125,10 @@ const Dashboard = () => {
               <ChefStatistics />
             </TabsContent>
             
+            <TabsContent value="deliveries">
+              <DeliverySchedule />
+            </TabsContent>
+
             <TabsContent value="menu">
               <MenuManager />
             </TabsContent>

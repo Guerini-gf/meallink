@@ -228,6 +228,7 @@ export type Database = {
       meal_orders: {
         Row: {
           created_at: string | null
+          delivery_time: string | null
           feedback: string | null
           id: string
           is_takeaway: boolean | null
@@ -242,6 +243,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          delivery_time?: string | null
           feedback?: string | null
           id?: string
           is_takeaway?: boolean | null
@@ -256,6 +258,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          delivery_time?: string | null
           feedback?: string | null
           id?: string
           is_takeaway?: boolean | null
@@ -554,6 +557,18 @@ export type Database = {
       canteen_code_exists: { Args: { _canteen_code: string }; Returns: boolean }
       cleanup_old_pending_employees: { Args: never; Returns: undefined }
       get_badge_canteen: { Args: { _badge_code: string }; Returns: string }
+      get_delivery_schedule: {
+        Args: { _date: string }
+        Returns: {
+          badge_code: string
+          delivery_time: string
+          dish_names: string[]
+          full_name: string
+          is_takeaway: boolean
+          notes: string
+          order_id: string
+        }[]
+      }
       get_my_canteen_codes: {
         Args: never
         Returns: {
