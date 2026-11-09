@@ -7,7 +7,7 @@ import { ScannerInterface } from "@/components/scanner/ScannerInterface";
 import { MenuManager } from "@/components/menu/MenuManager";
 import { CustomerInterface } from "@/components/customer/CustomerInterface";
 import { ChefStatistics } from "@/components/dashboard/ChefStatistics";
-import { DeliverySchedule } from "@/components/dashboard/DeliverySchedule";
+import { DeliverySchedulePanel } from "@/components/dashboard/DeliverySchedulePanel";
 import { InvestorLeads } from "@/components/dashboard/InvestorLeads";
 import { EmployeeManager } from "@/components/employees/EmployeeManager";
 import { PWAInstallBanner } from "@/components/pwa/PWAInstallBanner";
@@ -126,7 +126,7 @@ const Dashboard = () => {
             </TabsContent>
             
             <TabsContent value="deliveries">
-              <DeliverySchedule />
+              <DeliverySchedulePanel />
             </TabsContent>
 
             <TabsContent value="menu">
